@@ -164,12 +164,7 @@ public class PlayerData {
         Thumbnails.of(new BufferedImage(1920, 3240, BufferedImage.TYPE_INT_ARGB))
                 .size(1920,3240)
                 .watermark(PostionEnum.Base.getPosition(), Thumbnails.of(new URL("https://moe.jitsu.top/img/?sort=mp&size=mw1920")).width(1920).asBufferedImage(),1f)
-                .watermark(new Position() {
-                    @Override
-                    public Point calculate(int enclosingWidth, int enclosingHeight, int width, int height, int insetLeft, int insetRight, int insetTop, int insetBottom) {
-                        return new Point(0,0);
-                    }
-                }, Thumbnails.of(getClass().getClassLoader().getResourceAsStream("base2.png")).size(1920, 3240).asBufferedImage(), 1f)
+                .watermark((enclosingWidth, enclosingHeight, width, height, insetLeft, insetRight, insetTop, insetBottom) -> new Point(0,0), Thumbnails.of(getClass().getClassLoader().getResourceAsStream("base2.png")).size(1920, 3240).asBufferedImage(), 1f)
                 .watermark(PostionEnum.TX.getPosition(), Thumbnails.of(new URL(isNull(jsonObject.getString("avatar")))).size(165,165).asBufferedImage(),1f)
                 .watermark(PostionEnum.CL.getPosition(), Thumbnails.of(new URL(isNull(classes.getJSONObject(0).getJSONObject("avatarImages").getString("us")))).height(165).asBufferedImage(),1f)
                 .watermark(PostionEnum.P1.getPosition(), Thumbnails.of(getClass().getClassLoader().getResourceAsStream(is_guer?"h.png":(isPro?"pro.png":"ss.png"))).size(165,165).asBufferedImage(), 1f)
