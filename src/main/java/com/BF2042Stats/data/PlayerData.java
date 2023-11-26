@@ -169,33 +169,6 @@ public class PlayerData {
         //test
         //end
         //wp
-        Map<String,Double> map = new HashMap<>();
-        for (int i = 0; i < wp_group_array.size(); i++) {
-            JSONObject jsonObject1 = wp_group_array.getJSONObject(i);
-            if (jsonObject1.getDouble("kills")!=0) {
-                map.put(CLType.valueOf(jsonObject1.getString("groupName").replace(" ", "").replace("-", "")).getS(), jsonObject1.getDouble("kills"));
-            }
-        }
-        //test
-        DefaultPieDataset dataset = new DefaultPieDataset<>();
-        for(String s : map.keySet()){
-            if (s.equals("Primary")) continue;
-            dataset.setValue(s,map.get(s)/map.get("Primary"));
-        }
-        JFreeChart chart = ChartFactory.createPieChart(
-                "\u51fb\u6740\u5360\u6bd4",
-                dataset);
-        TextTitle title = chart.getTitle();
-        title.setFont(mc_font);
-        PiePlot plot = (PiePlot) chart.getPlot();
-        plot.setLabelFont(mc_font);//标签
-        plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}\u5360\u6bd4{2}"));
-        LegendTitle legend = chart.getLegend();
-        legend.setItemFont(mc_font);
-        BufferedImage pie_img = Thumbnails.of(chart.createBufferedImage(1200,1200)).size(500,500).asBufferedImage();
-        //
-        //vh
-
         //
         Thumbnails.of(new BufferedImage(1920, 3240, BufferedImage.TYPE_INT_ARGB))
                 .size(1920,3240)

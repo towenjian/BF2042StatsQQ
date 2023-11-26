@@ -2,8 +2,8 @@ package com.BF2042Stats.data.data_enum;
 
 public enum CLType {
     AssaultRifles("\u7a81\u51fb\u6b65\u67aa"),
-    BoltAction("\u534a\u81ea\u52a8"),
-    DMR("\u8fde\u72d9"),
+    BoltAction("\u72d9\u51fb\u6b65\u67aa"),
+    DMR("\u5c04\u624b\u6b65\u67aa"),
     LMG("\u5927\u673a\u67aa"),
     PDW("\u51b2\u950b\u67aa"),
     Shotguns("\u591a\u529f\u80fd"),
