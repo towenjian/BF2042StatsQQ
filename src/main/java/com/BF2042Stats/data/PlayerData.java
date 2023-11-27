@@ -60,8 +60,6 @@ public class PlayerData {
     private final long userID;
     private final Timer timer = new Timer();
     private boolean isTime = true;
-    private final boolean once_Graphs = true;
-    private boolean isOK_get = false;
     private boolean isOK_Graphs=false;
     private boolean isUpData = false;
     private Thread veh_T,wp_T,thread,imgTread,thread_Graphs,kd_T,kpm_T,st_T,cl_T;
@@ -877,6 +875,7 @@ public class PlayerData {
         if (st_T!=null) st_T.interrupt();
         ThreadInterrupt(cl_T);
         timer.cancel();
+        System.out.println("该任务"+(timer.purge()==0?"已经被停止":"还在运行"));
     }
     private BufferedImage returnBufferedImage(String type,String s,int w,int h) throws IOException {
         if (s==null||s.isEmpty()) return Thumbnails.of(new URL("https://moe.jitsu.top/img/?sort=1080p&size=mw1920")).size(w,h).asBufferedImage();
@@ -935,7 +934,6 @@ public class PlayerData {
     }
     private void Get_origin(){
         try {
-            final boolean[] isOk = {false};
             System.out.println("GET");
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
                     .writeTimeout(10, TimeUnit.SECONDS)
@@ -1069,8 +1067,6 @@ public class PlayerData {
                     veh_group_array = jsonObject.getJSONArray("vehicleGroups");
                     jsonObject.remove("vehicleGroups");
                     getThread_frequency=5;
-                    isOk[0] = true;
-                    isOK_get=true;
                     System.out.println("GET over");
                     if (isTime&&type<=4){
                         selectMessage(type);
