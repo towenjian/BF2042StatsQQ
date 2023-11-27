@@ -139,7 +139,7 @@ public class PlayerData {
                     try {
                         ImgMessage(groupMessage);
                     } catch (IOException ex) {
-                        groupMessage.sendGroupMessage("生成失败,请联系管理员查找错误");
+                        groupMessage.sendGroupMessage("生成失败");
                         System.out.println(ex.getCause().toString());
                         throw new RuntimeException(ex);
                     }
@@ -933,6 +933,7 @@ public class PlayerData {
         }
     }
     private String ShortCharacters(String s){
+        if(s==null) return "null";//解决空字符问题
         return s.length()<10?s:s.substring(0, 10)+"...";
     }
     private void Get_origin(){
