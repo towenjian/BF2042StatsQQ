@@ -130,21 +130,18 @@ public class PlayerData {
                 System.out.println(name+"的cx图片被删除");
             }
         }
-        imgTread = new Thread(new Runnable() {
-            @Override
-            public void run() {
+        imgTread = new Thread(() -> {
+            try {
+                ImgMessage(groupMessage);
+            } catch (IOException e) {
                 try {
                     ImgMessage(groupMessage);
-                } catch (IOException e) {
-                    try {
-                        ImgMessage(groupMessage);
-                    } catch (IOException ex) {
-                        groupMessage.sendGroupMessage("生成失败");
-                        System.out.println(ex.getCause().toString());
-                        throw new RuntimeException(ex);
-                    }
-                    throw new RuntimeException(e);
+                } catch (IOException ex) {
+                    groupMessage.sendGroupMessage("生成失败");
+                    System.out.println(ex.getCause().toString());
+                    throw new RuntimeException(ex);
                 }
+                throw new RuntimeException(e);
             }
         });
         imgTread.start();
