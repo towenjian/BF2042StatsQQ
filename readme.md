@@ -1,6 +1,8 @@
 # 介绍
 欢迎使用战地2042qq机器人，该插件是在[mirai](https://github.com/mamoe/mirai)的基础是开发的，
 目的是方便查询玩家数据
+
+**感谢gametools.network提供的api支持**
 # 使用方法
 ## 加载方法
 下载插件后将插件放到mirai的plugin文件夹里面运行一遍即可，运行后会在config文件夹里面生成配置文件
