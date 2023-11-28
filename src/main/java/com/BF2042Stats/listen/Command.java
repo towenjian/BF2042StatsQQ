@@ -92,9 +92,10 @@ public class Command implements TimeCallback {
     }
     public void MemberJoin(){//玩家加入消息
         GlobalEventChannel.INSTANCE.subscribeAlways(MemberJoinEvent.class, memberJoinEvent -> {
+            if (!ConfigData.isOpenWelcome()) return;
             memberJoinEvent.getGroup().sendMessage(new MessageChainBuilder()
                     .append(new At(memberJoinEvent.getMember().getId()))
-                    .append("欢迎入群，群内机器人可以通过#cd指令查看详细功能，查询软件在bf.mcbtc.top,有bug欢迎向群主提交")
+                    .append(ConfigData.getWelcomeMessage())
                     .build());
             if (requestEventMap.containsKey(memberJoinEvent.getMember().getId()))memberJoinEvent.getMember().setNameCard(requestEventMap.get(memberJoinEvent.getMember().getId()));
         });

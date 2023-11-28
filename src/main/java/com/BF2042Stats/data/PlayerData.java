@@ -100,20 +100,24 @@ public class PlayerData {
     }
     private void TextMessage(){
         String replyMessage = "游戏ID:"+jsonObject.getString("userName")+"\n" +
+                "游戏时长:" +jsonObject.getString("time")+"h"+"\n"+
                 "MVP数:"+jsonObject.getString("mvp")+"\n" +
                 "鸡杀数:"+jsonObject.getString("kills")+"\n" +
+                "真实击杀数:" +jsonObject.getString("human")+"\n" +
+                "近战击杀:"+jsonObject.getString("melee")+"\n"+
                 "死亡数:"+jsonObject.getString("deaths")+"\n" +
                 "胜利场数:"+jsonObject.getString("wins")+"\n" +
                 "失败场数:"+jsonObject.getString("loses")+"\n" +
+                "KD:"+jsonObject.getString("killDeath")+"\n" +
+                "真实KD:"+jsonObject.getString("infantryKillDeath")+"\n" +
                 "KPM:"+jsonObject.getString("killsPerMinute")+"\n" +
+                "真实KPM:" +jsonObject.getString("inkpm")+"\n"+
                 "分钟伤害:"+jsonObject.getString("damagePerMinute")+"\n" +
                 "场均击杀:"+jsonObject.getString("killsPerMatch")+"\n" +
                 "场均伤害:"+jsonObject.getString("damagePerMatch")+"\n" +
                 "爆头数:"+jsonObject.getString("headShots")+"\n" +
                 "胜率:"+jsonObject.getString("winPercent")+"\n" +
                 "爆头率:"+jsonObject.getString("headshots")+"\n" +
-                "KD:"+jsonObject.getString("killDeath")+"\n" +
-                "步战KD:"+jsonObject.getString("infantryKillDeath")+"\n" +
                 "更多数据请前往软件观看...";
         groupMessage.sendGroupMessage(replyMessage);
     }

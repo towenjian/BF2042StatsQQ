@@ -21,6 +21,8 @@ public class ConfigData {
     private static List<String> groupList = new ArrayList<>();
     private static File data;
     private static Map<String,String> qq_gameID = new HashMap<>();
+    private static String welcomeMessage,menuMessage;
+    private static boolean openWelcome = false;
 
     public ConfigData(JavaPlugin javaPlugin) {
         ConfigData.javaPlugin = javaPlugin;
@@ -45,6 +47,9 @@ public class ConfigData {
         user = (String) map.get("user");
         System.out.println(user);
         qqBot = (long) map.get("qqBot");
+        welcomeMessage = (String) map.get("welcome");
+        openWelcome = (boolean) map.get("openWelcome");
+        menuMessage = (String) map.get("menuMessage");
         System.out.println(qqBot);
         data = new File(javaPlugin.getDataFolder(),"data.yml");
         if (!data.exists()) {
@@ -90,5 +95,15 @@ public class ConfigData {
 
     public static List<String> getGroupList() {
         return groupList;
+    }
+    public static String getWelcomeMessage(){
+        if (welcomeMessage==null) return "null";
+        return welcomeMessage;
+    }
+    public static boolean isOpenWelcome(){
+        return openWelcome;
+    }
+    public static String getMenuMessage(){
+        return menuMessage;
     }
 }
