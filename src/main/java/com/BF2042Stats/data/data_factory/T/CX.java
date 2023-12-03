@@ -10,6 +10,10 @@ import com.BF2042Stats.data.data_interface.InterfaceData;
 public class CX implements InterfaceData {
     @Override
     public void start(GroupMessage groupMessage) {
+        if (!ConfigData.isCx()){
+            groupMessage.sendGroupMessage("当前功能已被禁用");
+            return;
+        }
         String name,platform;
         int isBD=0;
         System.out.println(isBD+"|f");

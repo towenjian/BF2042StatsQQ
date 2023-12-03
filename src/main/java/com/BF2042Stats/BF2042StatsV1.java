@@ -22,8 +22,8 @@ public final class BF2042StatsV1 extends JavaPlugin {
     @Override
     public void onLoad(@NotNull PluginComponentStorage $this$onLoad) {
         super.onLoad($this$onLoad);
-        ConfigData configData = new ConfigData(this);
         javaPlugin = this;
+        ConfigData.getInstance().sout();
     }
 
     @Override
@@ -34,7 +34,7 @@ public final class BF2042StatsV1 extends JavaPlugin {
         Command command = new Command();
         command.GroupMessage();
         command.MemberJoin();
-//        command.joinGroupMessage();
+        command.joinGroupMessage();
     }
     public static JavaPlugin getJP(){
         return javaPlugin;

@@ -51,6 +51,10 @@ import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
 public class PlayerData {
+    /*
+    * btr链接:https://api.tracker.gg/api/v2/bf2042/standard/profile/origin/hhhh6448/history?
+    *
+    * */
     private final String name,platform;
     private JSONObject jsonObject;
     private JSONArray classes,weapons,veh,kd_array,kpm_array,kd_in_array,headshots_array,wp_group_array,veh_group_array;
@@ -60,7 +64,7 @@ public class PlayerData {
     private final long userID;
     private final Timer timer = new Timer();
     private boolean isTime = true;
-    private boolean isOK_Graphs=false;
+    private boolean isOK_Graphs=false,graphsIsNull = false;
     private boolean isUpData = false;
     private Thread veh_T,wp_T,thread,imgTread,thread_Graphs,kd_T,kpm_T,st_T,cl_T;
     private GroupMessage groupMessage;
@@ -121,11 +125,10 @@ public class PlayerData {
                 "更多数据请前往软件观看...";
         groupMessage.sendGroupMessage(replyMessage);
     }
+    /**
+    * @param  groupMessage 传入的消息参数
+    * */
     public void CX(GroupMessage groupMessage){
-        if (isUpData){
-            groupMessage.sendGroupMessage("当前正在执行拼接操作，请等待拼接完成");
-            return;
-        }
         File file = new File(javaPlugin.getDataFolder(), name+".png");
         if (file.exists()){
             if (file.delete()) {
@@ -217,7 +220,7 @@ public class PlayerData {
         Image image1 = groupMessage.getGroup().uploadImage(resource);
         resource.close();
         groupMessage.getGroup().sendMessage(new MessageChainBuilder()
-                .append(new QuoteReply(groupMessage.getMessages()))
+                .append(groupMessage.getMessages()!=null?new QuoteReply(groupMessage.getMessages()):groupMessage.getQuoteReply())
                 .append(image1)
                 .build());
         img_file.delete();
@@ -364,7 +367,7 @@ public class PlayerData {
         Image image_temp = groupMessage.getGroup().uploadImage(resource);
         resource.close();
         groupMessage.getGroup().sendMessage(new MessageChainBuilder()
-                .append(new QuoteReply(groupMessage.getMessages()))
+                .append(groupMessage.getMessages()!=null?new QuoteReply(groupMessage.getMessages()):groupMessage.getQuoteReply())
                 .append(image_temp)
                 .build());
         img_file.delete();
@@ -514,7 +517,7 @@ public class PlayerData {
         Image image_temp = groupMessage.getGroup().uploadImage(resource);
         resource.close();
         groupMessage.getGroup().sendMessage(new MessageChainBuilder()
-                .append(new QuoteReply(groupMessage.getMessages()))
+                .append(groupMessage.getMessages()!=null?new QuoteReply(groupMessage.getMessages()):groupMessage.getQuoteReply())
                 .append(image_temp)
                 .build());
         img_file.delete();
@@ -637,6 +640,10 @@ public class PlayerData {
         kd_T.start();
     }
     private void KD(GroupMessage groupMessage) throws IOException {
+        if (graphsIsNull){
+            groupMessage.sendGroupMessage("当前玩家的数据类无法被搜索到，因为他关闭了隐私");
+            return;
+        }
         this.groupMessage = groupMessage;
         groupMessage.sendGroupMessage("正在生成你的KD状态图，等待中");
         BufferedImage bufferedImage1 = Generate_Graph(kd_array, TextData.KD),bufferedImage2 = Generate_Graph(kd_in_array,TextData.InfantryKD);
@@ -709,6 +716,10 @@ public class PlayerData {
         kpm_T.start();
     }
     private void KPM(GroupMessage groupMessage) throws IOException {
+        if (graphsIsNull){
+            groupMessage.sendGroupMessage("当前玩家的数据类无法被搜索到，因为他关闭了隐私");
+            return;
+        }
         this.groupMessage = groupMessage;
         groupMessage.sendGroupMessage("正在生成你的KPM状态图，等待中");
         BufferedImage bufferedImage1 = Generate_Graph(kpm_array, TextData.KPM);
@@ -936,6 +947,10 @@ public class PlayerData {
         if(s==null) return "null";//解决空字符问题
         return s.length()<10?s:s.substring(0, 10)+"...";
     }
+
+    /**
+     * 查询玩家数据的源程序
+     */
     private void Get_origin(){
         try {
             System.out.println("GET");
@@ -1103,6 +1118,7 @@ public class PlayerData {
             throw new RuntimeException(e);
         }
     }
+
     private void Get_Graphs(){
         if (isOK_Graphs) return;
         getThread_Graphs++;
@@ -1112,7 +1128,7 @@ public class PlayerData {
                 .readTimeout(10, TimeUnit.SECONDS)
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .build();
-        String url = "https://api.gametools.network/bf2042/statsarray/?days=30&name="+name+"&platform="+platform+"&skip_battlelog=false";
+        String url = "https://api.tracker.gg/api/v2/bf2042/standard/profile/origin/"+name+"/history?";
         Request request = new Request.Builder()
                 .url(url)
                 .get().build();
@@ -1167,33 +1183,15 @@ public class PlayerData {
                     }
                 }
                 isOK_Graphs=true;
-                JSONObject data = null;
-                try {
-                    data = JSONObject.parseObject(response.body().string());
-                } catch (IOException e) {
-                    if (getThread_Graphs>=5&&type>=4){
-                        groupMessage.sendGroupMessage("数据获取失败，请检查id与平台是否正确");
-                        CapacityPool.removePlayerData(name);
-                    }
-                    if (getThread_Graphs<5){
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                thread_Graphs.interrupt();
-                                System.out.println(getThread_Graphs);
-                                thread_Graphs = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Get_Graphs();
-                                    }
-                                });
-                                thread_Graphs.start();
-                            }
-                        });
-                    }
-                    throw new RuntimeException(e);
+                String data_origin = response.body().string();
+                if (data_origin==null){
+                    graphsIsNull = true;
+                    return;
                 }
+                JSONObject data = null;
+                data = JSONObject.parseObject(data_origin);
                 JSONArray time_array = data.getJSONArray("timeStamps");
+                if (time_array==null) return;
                 kd_array = data.getJSONArray("killDeath");
                 kd_in_array = data.getJSONArray("infantryKillDeath");
                 kpm_array = data.getJSONArray("killsPerMinute");
@@ -1225,9 +1223,20 @@ public class PlayerData {
             }
         });
     }
+
+    /**
+     * 用于返回改对象的剩余时间
+     * @return 返回改对象的剩余时间
+     */
     public int getTime(){
         return Math.max((time - TimeMember), 0);
     }
+
+    /**
+     * 对于数据类的快速返回对应的值
+     * @param s 状态图类的时间数据
+     * @return 返回时间的最终大小
+     */
     public double num(String s){
         String[] temp = s.split("T");
         String[] temp_l = temp[0].split("-"),temp_r = temp[1].split(":");
@@ -1286,6 +1295,12 @@ public class PlayerData {
         System.out.println(name+textData.getS1()+"over");
         return chart.createBufferedImage(Math.min(list_origin.size() * 100, 1600), height);
     }
+
+    /**
+     * 用于快速生成图标的属性的方法
+     * @param max 最大的数据量
+     * @param min 最小的数据量
+     */
     private void setChart(CategoryPlot plot,Double max,Double min){
         NumberAxis numberAxis = (NumberAxis) plot.getRangeAxis();
         numberAxis.setRange(min,max);
@@ -1309,6 +1324,15 @@ public class PlayerData {
         renderer.setDefaultLinesVisible(true);
         plot.setRenderer(renderer);
     }
+
+    /**
+     * 用来快速画出武器数据图表
+     * @param g2d g2d对象
+     * @param x 写入的x轴
+     * @param y 写入的轴
+     * @param jsonObject 对应的json数据
+     *
+     */
     private void writeWpImg(Graphics2D g2d,int x ,int y,JSONObject jsonObject) throws IOException {
         g2d.setFont(g2d.getFont().deriveFont(25f));
         g2d.setColor(Color.WHITE);
@@ -1327,6 +1351,14 @@ public class PlayerData {
             g2d.fillRoundRect(x+i*25,y+100,20,4,2,2);
         }
     }
+    /**
+     * 用来快速画出载具数据图表
+     * @param g2d g2d对象
+     * @param x 写入的x轴
+     * @param y 写入的轴
+     * @param jsonObject 对应的json数据
+     *
+     */
     private void writeVhImg(Graphics2D g2d,int x,int y,JSONObject jsonObject) throws IOException {
         g2d.setColor(Color.WHITE);
         g2d.setFont(g2d.getFont().deriveFont(25f));
@@ -1347,6 +1379,14 @@ public class PlayerData {
             g2d.fillRoundRect(x+i*25,y+100,20,4,2,2);
         }
     }
+    /**
+     * 用来快速画出专家数据图表
+     * @param g2d g2d对象
+     * @param x 写入的x轴
+     * @param y 写入的轴
+     * @param jsonObject 对应的json数据
+     *
+     */
     private void writeClImg(Graphics2D g2d,int x,int y,JSONObject jsonObject) throws IOException {
         g2d.setFont(g2d.getFont().deriveFont(20f));
         g2d.setColor(Color.WHITE);
@@ -1367,9 +1407,21 @@ public class PlayerData {
         g2d.drawString("\u6551\u63f4\u6570: "+jsonObject.getString("revives"),x+450,y+70);
         g2d.drawString("\u52a9\u653b\u6570: "+jsonObject.getString("assists"),x+450,y+110);
     }
+
+    /**
+     * 用来快速结束进程，对进程进行非空检查
+     * @param thread 需要结束的进程
+     */
     private void ThreadInterrupt(Thread thread){
         if (thread!=null) thread.interrupt();
     }
+
+    /**
+     * 返回载具的饼图
+     * @param w 所需饼图的宽度
+     * @param h 所需饼图的高度
+     * @return 返回饼图的BufferedImage对象
+     */
     private BufferedImage getVehDataPie(int w,int h){
         Map<String,Double> map = new HashMap<>();
         double allKills = 0;
@@ -1412,6 +1464,13 @@ public class PlayerData {
         }
         return pie_img;
     }
+
+    /**
+     * 返回武器的饼图
+     * @param w 所需饼图的宽度
+     * @param h 所需饼图的高度
+     * @return 返回饼图的BufferedImage对象
+     */
     private BufferedImage getWpDataPie(int w,int h){
         Map<String,Double> map = new HashMap<>();
         double all_kills = 0;

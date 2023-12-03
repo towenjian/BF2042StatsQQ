@@ -14,7 +14,9 @@ public enum FactoryEnum {
     kd(new KD(),"kd"),
     kpm(new KPM(),"kpm"),
     st(new ST(),"st"),
-    rl(new RL(),"rl");
+    rl(new RL(),"rl"),
+    reload(new Reload(),"reload"),
+    config(new Config(),"config");
     private final InterfaceData interfaceData;
     private final String name;
 

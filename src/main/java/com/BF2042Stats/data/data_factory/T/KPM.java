@@ -10,6 +10,10 @@ import com.BF2042Stats.data.data_interface.InterfaceData;
 public class KPM implements InterfaceData {
     @Override
     public void start(GroupMessage groupMessage) {
+        if (!ConfigData.isKpm()){
+            groupMessage.sendGroupMessage("当前功能已被禁用");
+            return;
+        }
         String name="",pt="pc";
         groupMessage.sendGroupMessage("该功能已被管理员禁用，请等待管理员解除");
         if (true) return;

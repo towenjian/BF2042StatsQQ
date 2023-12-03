@@ -9,6 +9,7 @@ import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MemberJoinRequestEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.message.MessageReceipt;
 import net.mamoe.mirai.message.data.*;
 
 public class GroupMessage {
@@ -16,12 +17,13 @@ public class GroupMessage {
     private MessageChain messages;
     private final Group group;
     private GroupMessageEvent event;
-    private MemberJoinRequestEvent requestEvent;
     private final Command command;
     private final JavaPlugin javaPlugin;
     private final Bot bot;
     private String[] s;
     private int days=7;
+    private MessageReceipt<Group> receipt;
+    private QuoteReply quoteReply;
 
     public GroupMessage(GroupMessageEvent event, Command command,Bot bot,String[] s) {
         this.s = s;
@@ -33,14 +35,15 @@ public class GroupMessage {
         this.command = command;
         this.javaPlugin = BF2042StatsV1.getJP();
     }
-    public GroupMessage(MemberJoinRequestEvent event,Command command,Bot bot,String[] s){
+    public GroupMessage(MessageReceipt<Group> receipt, Command command, Bot bot, String[] s,long user){
+        this.receipt = receipt;
         this.s = s;
         this.bot = bot;
         this.javaPlugin = BF2042StatsV1.getJP();
         this.command = command;
-        this.requestEvent = event;
-        this.group = event.getGroup();
-        this.user = event.getFromId();
+        this.group = receipt.getTarget();
+        this.user = user;
+        this.quoteReply = receipt.quote();
     }
     public Group getGroup() {
         return group;
@@ -61,9 +64,9 @@ public class GroupMessage {
                 .build());
         else {
             group.sendMessage(new MessageChainBuilder()
-                    .append(new At(Long.parseLong(ConfigData.getUser())))
-                    .append(reply)
-                    .build());
+                            .append(receipt.quote())
+                            .append(reply)
+                            .build());
         }
     }
     public Command getCommand() {
@@ -90,5 +93,8 @@ public class GroupMessage {
     public void setDays(int days) {
         if (days>=30) this.days=30;
         else this.days = Math.max(7, days);
+    }
+    public QuoteReply getQuoteReply(){
+        return quoteReply;
     }
 }

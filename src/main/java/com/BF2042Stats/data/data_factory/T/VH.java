@@ -12,6 +12,10 @@ import java.util.Objects;
 public class VH implements InterfaceData {
     @Override
     public void start(GroupMessage groupMessage) {
+        if (!ConfigData.isVh()){
+            groupMessage.sendGroupMessage("当前功能已被禁用");
+            return;
+        }
         String name ;
         String pt = "pc";
         int isBD = 0;
