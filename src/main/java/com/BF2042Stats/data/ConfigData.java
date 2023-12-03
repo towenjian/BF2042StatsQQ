@@ -184,4 +184,7 @@ public class ConfigData {
     public static void setCl(boolean cl) {
         ConfigData.cl = cl;
     }
+    public static void setw(){
+
+    }
 }
