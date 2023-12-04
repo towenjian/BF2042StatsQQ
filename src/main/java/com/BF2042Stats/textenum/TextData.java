@@ -3,7 +3,7 @@ package com.BF2042Stats.textenum;
 public enum TextData {
     KD("-KD","Days","KD"),
     InfantryKD("-infantryKillDeath","Days","KD"),
-    KPM("-KPM","Days","kpm"),
+    KPM("-Kill","Days","kpm"),
     HEADSHOTS("-headshots","Days","%");
     private final String s1,s2,s3;
     TextData(String s1, String s2, String s3) {

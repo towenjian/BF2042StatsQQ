@@ -9,7 +9,7 @@ public enum CLType {
     Shotguns("\u591a\u529f\u80fd"),
     Railguns("\u7535\u78c1\u67aa"),
     LeverActionCarbines("\u53cc\u55b7"),
-    Crossbows("\u9a7d"),
+    Crossbows("\u5f29"),
     Sidearm("\u624b\u67aa"),
     Miscellaneous("\u6742\u9879"),
     Primary("Primary"),

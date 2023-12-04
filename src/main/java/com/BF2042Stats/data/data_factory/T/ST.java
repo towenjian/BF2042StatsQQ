@@ -11,8 +11,6 @@ public class ST implements InterfaceData {
     public void start(GroupMessage groupMessage) {
         String name="",pt="pc";
         int isBD=0;
-        groupMessage.sendGroupMessage("该功能已被管理员禁用，请等待管理员解除");
-        if (true) return;
         int day = 7;
         switch (groupMessage.getS().length){
             case 1:

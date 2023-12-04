@@ -21,7 +21,7 @@ public class ConfigData {
     private static File data;
     private static Map<String,String> qq_gameID = new HashMap<>();
     private static String welcomeMessage,menuMessage,RequestIssue;
-    private static boolean openWelcome = false,openRequestValidation = false,cx = true,vh = true,wp = true,kd = true,kpm = true,cl = true;
+    private static boolean openWelcome = false,openRequestValidation = false,cx = true,vh = true,wp = true,kd = true,kill = true,cl = true;
     private static final ConfigData configData = new ConfigData();
 
     private ConfigData() {
@@ -58,7 +58,7 @@ public class ConfigData {
         vh = (boolean) map.get("vh");
         wp = (boolean) map.get("wp");
         kd = (boolean) map.get("kd");
-        kpm = (boolean) map.get("kpm");
+        kill = (boolean) map.get("kill");
         menuMessage = (String) map.get("menuMessage");
         RequestIssue = (String) map.get("RequestIssue");
         System.out.println(qqBot);
@@ -153,8 +153,8 @@ public class ConfigData {
         return kd;
     }
 
-    public static boolean isKpm() {
-        return kpm;
+    public static boolean isKill() {
+        return kill;
     }
 
     public static boolean isCl() {
@@ -177,14 +177,15 @@ public class ConfigData {
         ConfigData.kd = kd;
     }
 
-    public static void setKpm(boolean kpm) {
-        ConfigData.kpm = kpm;
+    public static void setKill(boolean kill) {
+        ConfigData.kill = kill;
     }
 
     public static void setCl(boolean cl) {
         ConfigData.cl = cl;
     }
-    public static void setw(){
 
+    public static String getRequestIssue() {
+        return RequestIssue;
     }
 }

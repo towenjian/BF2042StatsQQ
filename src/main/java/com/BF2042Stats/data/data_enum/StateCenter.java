@@ -13,7 +13,7 @@ public enum StateCenter {
     A6("\u7206\u5934\u7387","headshots"),//爆头率
     A7("\u547d\u4e2d\u7387","accuracy"),//正确率
     A8("\u80dc\u7387","winPercent"),//胜率
-    A9("\u5206\u949f\u4f24\u5bb3","damagePerMatch"),//每局击杀
+    A9("\u6bcf\u5c40\u4f24\u5bb3","damagePerMatch"),//每局伤害
     A10("\u6bcf\u5c40\u51fb\u6740","killsPerMatch"),//每局击杀
     A11("\u7ef4\u4fee\u6570","repairs"),//维修数
     A12("\u6551\u63f4\u6570","revives"),//救援数

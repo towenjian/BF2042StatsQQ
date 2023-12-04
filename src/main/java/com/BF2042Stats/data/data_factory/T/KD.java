@@ -15,8 +15,6 @@ public class KD implements InterfaceData {
             return;
         }
         String name="",pt="pc";
-        groupMessage.sendGroupMessage("该功能已被管理员禁用，请等待管理员解除");
-        if (true) return;
         int isBD=0;
         int day = 7;
         switch (groupMessage.getS().length){

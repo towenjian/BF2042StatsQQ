@@ -7,16 +7,14 @@ import com.BF2042Stats.data.PlayerData;
 import com.BF2042Stats.data.data_interface.GetType;
 import com.BF2042Stats.data.data_interface.InterfaceData;
 
-public class KPM implements InterfaceData {
+public class Kill implements InterfaceData {
     @Override
     public void start(GroupMessage groupMessage) {
-        if (!ConfigData.isKpm()){
+        if (!ConfigData.isKill()){
             groupMessage.sendGroupMessage("当前功能已被禁用");
             return;
         }
         String name="",pt="pc";
-        groupMessage.sendGroupMessage("该功能已被管理员禁用，请等待管理员解除");
-        if (true) return;
         int isBD=0;
         int day = 7;
         switch (groupMessage.getS().length){
@@ -45,10 +43,10 @@ public class KPM implements InterfaceData {
         if (!CapacityPool.findPlayerData(name.toLowerCase(), isBD)){
             groupMessage.sendGroupMessage("当前玩家未在"+(isBD==1?"绑定缓存池":"普通缓存池")+"中找到，正在创建");
             System.out.println(groupMessage.getDays());
-            CapacityPool.addPlayerData(new PlayerData(groupMessage, name, pt, GetType.KPM), isBD);
+            CapacityPool.addPlayerData(new PlayerData(groupMessage, name, pt, GetType.KILL), isBD);
             CapacityPool.getPlayerData(name.toLowerCase(), isBD).setTime(isBD==1?24:2);
             return;
         }
-        CapacityPool.getPlayerData(name.toLowerCase(), isBD).KPMImg(groupMessage);
+        CapacityPool.getPlayerData(name.toLowerCase(), isBD).KillImg(groupMessage);
     }
 }

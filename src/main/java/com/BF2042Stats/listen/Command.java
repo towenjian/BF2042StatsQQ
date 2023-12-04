@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 public class Command implements TimeCallback {
     private static Bot bot;
     private static final List<String> list = new ArrayList<>();
-    private static final Map<List<Integer>,MemberJoinRequestEvent> requestEventMap = new HashMap<>();
+    private static final Map<Integer,MemberJoinRequestEvent> requestEventMap = new HashMap<>();
 
     public Command() {
         for (FactoryEnum factoryEnum:FactoryEnum.values()){
@@ -53,13 +53,17 @@ public class Command implements TimeCallback {
                     .build());
         });
     }
-    public void joinGroupMessage(){//申请入群消息
+
+    /**
+     * 处理入群请求
+     */
+    public void joinGroupMessage(){
         GlobalEventChannel.INSTANCE.subscribeAlways(MemberJoinRequestEvent.class, memberJoinRequestEvent -> {
             System.out.println(memberJoinRequestEvent.component3()+"|1");
             System.out.println(memberJoinRequestEvent.component7()+"|2");
             System.out.println(memberJoinRequestEvent.component6()+"|3");
             System.out.println(memberJoinRequestEvent.getMessage()+"|4");
-            String s = memberJoinRequestEvent.getMessage();
+            String s = memberJoinRequestEvent.getMessage().split("答案：")[1];
             if (isContainsChinese(s)){
                 Objects.requireNonNull(memberJoinRequestEvent.getGroup()).sendMessage(new MessageChainBuilder()
                         .append("无法验证该ID,因为申请的ID含有中文,请管理员自行验证").append(s)
@@ -69,18 +73,11 @@ public class Command implements TimeCallback {
             MessageChain chain = new MessageChainBuilder().append("接收到加群消息，正在验证，申请的ID为:").append(s).append("\n回复此条消息加y既同意加入，n则拒绝\n---仅限群管理员")
                     .build();
             MessageReceipt<Group> receipt = Objects.requireNonNull(memberJoinRequestEvent.getGroup()).sendMessage(chain);
-            List<Integer> list1 = new ArrayList<>();
-            for (int i : receipt.getSource().getIds()){
-                list1.add(i);
-            }
-            memberJoinRequestEvent.getGroup().sendMessage(new MessageChainBuilder()
-                    .append(list1+"")
-                    .build());
-            requestEventMap.put(list1,memberJoinRequestEvent);
-            GroupMessage groupMessage = new GroupMessage(receipt,this, bot, new String[]{"cx",memberJoinRequestEvent.getMessage()},memberJoinRequestEvent.getFromId());
+            requestEventMap.put(receipt.getSource().getIds()[0],memberJoinRequestEvent);
+            GroupMessage groupMessage = new GroupMessage(receipt,this, bot, new String[]{"cx",s},memberJoinRequestEvent.getFromId());
             CapacityPool.addPlayerData(new PlayerData(
                     groupMessage,
-                    memberJoinRequestEvent.getMessage(),
+                    s,
                     "pc",
                     1), 0);
             CapacityPool.getPlayerData(memberJoinRequestEvent.getMessage(), 0).setTime(1);
@@ -88,7 +85,12 @@ public class Command implements TimeCallback {
         GlobalEventChannel.INSTANCE.subscribeAlways(GroupMessageEvent.class,groupMessageEvent -> {
             System.out.println(groupMessageEvent.getSource().getFromId()+"tttt");
             System.out.println(groupMessageEvent.getSource().getIds()[0]);
-            if (!(groupMessageEvent.getSource().getFromId()+"").equals(ConfigData.getQqBot()+"")) return;
+            if (!requestEventMap.containsKey(groupMessageEvent.getSource().getIds()[0])) return;
+//            if (!(groupMessageEvent.).equals(ConfigData.getQqBot()+"")) return;
+            if (groupMessageEvent.getPermission().getLevel()==0) {
+                groupMessageEvent.getSender().sendMessage("非管理员，请不要回复此条消息");
+                return;
+            }
             groupMessageEvent.getGroup().sendMessage(new MessageChainBuilder()
                     .append(groupMessageEvent.getSource().getIds().length+"")
                     .build());
@@ -96,12 +98,17 @@ public class Command implements TimeCallback {
             for (int i : groupMessageEvent.getSource().getIds()){
                 list.add(i);
             }
-            groupMessageEvent.getGroup().sendMessage(new MessageChainBuilder()
-                    .append(list+"")
-                    .build());
+            System.out.println(list);
+//            groupMessageEvent.getGroup().sendMessage(new MessageChainBuilder()
+//                    .append(list+"")
+//                    .build());
         });
     }
-    public void joinGroup(){//被邀请入群
+
+    /**
+     * 处理加群请求
+     */
+    public void joinGroup(){
         FriendMessage();
         GlobalEventChannel.INSTANCE.subscribeAlways(BotInvitedJoinGroupRequestEvent.class, botInvitedJoinGroupRequestEvent -> {
             bot.getFriend(Long.parseLong(ConfigData.getUser())).sendMessage(new MessageChainBuilder().append("接收到加群请求,目标群聊为:").append(String.valueOf(botInvitedJoinGroupRequestEvent.getGroupId())).append("邀请人为:").append(String.valueOf(botInvitedJoinGroupRequestEvent.getInvitor().getId()))
@@ -116,6 +123,15 @@ public class Command implements TimeCallback {
         });
     }
     public void MemberJoin(){//玩家加入消息
+        GlobalEventChannel.INSTANCE.subscribeAlways(MemberJoinEvent.class, new Consumer<MemberJoinEvent>() {
+            @Override
+            public void accept(MemberJoinEvent memberJoinEvent) {
+                memberJoinEvent.getGroup().sendMessage(new MessageChainBuilder()
+                        .append(new At(memberJoinEvent.getMember().getId()))
+                        .append("  欢迎欢迎,使用#cd查看小助手菜单")
+                        .build());
+            }
+        });
     }
 
     public static Bot getBot() {

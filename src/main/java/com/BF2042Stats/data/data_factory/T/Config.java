@@ -39,9 +39,9 @@ public class Config implements InterfaceData {
                 ConfigData.setKd(isOpen);
                 groupMessage.sendGroupMessage("kd功能已"+(isOpen?"开启":"关闭"));
                 break;
-            case "kpm":
-                ConfigData.setKpm(isOpen);
-                groupMessage.sendGroupMessage("kpm功能已"+(isOpen?"开启":"关闭"));
+            case "kill":
+                ConfigData.setKill(isOpen);
+                groupMessage.sendGroupMessage("kill功能已"+(isOpen?"开启":"关闭"));
                 break;
             case "cl":
                 ConfigData.setCl(isOpen);

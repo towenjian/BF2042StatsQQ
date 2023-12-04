@@ -12,7 +12,7 @@ public enum FactoryEnum {
     list(new LIST(),"list"),
     cl(new CL(),"cl"),
     kd(new KD(),"kd"),
-    kpm(new KPM(),"kpm"),
+    kill(new Kill(),"kill"),
     st(new ST(),"st"),
     rl(new RL(),"rl"),
     reload(new Reload(),"reload"),
