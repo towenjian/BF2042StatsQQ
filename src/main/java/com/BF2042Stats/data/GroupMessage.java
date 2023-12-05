@@ -5,6 +5,7 @@ import com.BF2042Stats.listen.Command;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.contact.Group;
+import net.mamoe.mirai.contact.Member;
 import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MemberJoinRequestEvent;
@@ -24,6 +25,7 @@ public class GroupMessage {
     private int days=7;
     private MessageReceipt<Group> receipt;
     private QuoteReply quoteReply;
+    private Member member;
 
     public GroupMessage(GroupMessageEvent event, Command command,Bot bot,String[] s) {
         this.s = s;
@@ -34,6 +36,7 @@ public class GroupMessage {
         this.messages = event.getMessage();
         this.command = command;
         this.javaPlugin = BF2042StatsV1.getJP();
+        this.member = event.getSender();
     }
     public GroupMessage(MessageReceipt<Group> receipt, Command command, Bot bot, String[] s,long user){
         this.receipt = receipt;
@@ -96,5 +99,9 @@ public class GroupMessage {
     }
     public QuoteReply getQuoteReply(){
         return quoteReply;
+    }
+
+    public Member getMember() {
+        return member;
     }
 }

@@ -16,7 +16,8 @@ public enum FactoryEnum {
     st(new ST(),"st"),
     rl(new RL(),"rl"),
     reload(new Reload(),"reload"),
-    config(new Config(),"config");
+    config(new Config(),"config"),
+    clear(new Clear(),"clear");
     private final InterfaceData interfaceData;
     private final String name;
 

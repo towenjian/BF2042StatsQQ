@@ -191,7 +191,7 @@ public class PlayerData {
         //end
         //专家
         g2d.drawString("KD:"+classes.getJSONObject(0).getString("killDeath"),810,60);
-        g2d.drawString("Kill:"+classes.getJSONObject(0).getString("kpm"),810,100);
+        g2d.drawString("KPM:"+classes.getJSONObject(0).getString("kpm"),810,100);
         g2d.drawString("\u51fb\u6740\u6570:"+classes.getJSONObject(0).getString("kills"),810,140);
         g2d.drawString("\u6b7b\u4ea1\u6570:"+classes.getJSONObject(0).getString("deaths"),810,180);
         //end

@@ -11,7 +11,7 @@ import java.util.Set;
 public class LIST implements InterfaceData {
     @Override
     public void start(GroupMessage groupMessage) {
-        if (!(ConfigData.getUser()).equals(String.valueOf(groupMessage.getUser()))){
+        if (groupMessage.getMember().getPermission().getLevel()<=0){
             groupMessage.sendGroupMessage("非管理员无法使用该指令");
             return;
         }
