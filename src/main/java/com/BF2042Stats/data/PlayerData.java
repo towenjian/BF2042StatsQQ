@@ -1166,7 +1166,7 @@ public class PlayerData {
                 JSONObject data = JSONObject.parseObject(data_origin).getJSONObject("data").getJSONObject("series");
                 if (data.isEmpty()) {
                     graphsIsNull = true;
-                    System.out.println("该玩家已打开隐私");
+                    System.out.println("该玩家未打开隐私");
                     return;
                 }
                 KillsJson = data.getJSONObject("Kills");
@@ -1301,6 +1301,7 @@ public class PlayerData {
         time_temp = b.setScale(2, RoundingMode.HALF_UP).doubleValue();
         g2d.drawString("\u88c5\u5907\u65f6\u957f:"+time_temp+"h", x+610, y+85);
         for (int i = 0; i < 32; i++) {
+            g2d.setColor(new Color(i*5,255-i*5,255));
             g2d.fillRoundRect(x+i*25,y+100,20,4,2,2);
         }
     }
@@ -1329,6 +1330,7 @@ public class PlayerData {
         g2d.drawString("\u6467\u6bc1\u8f7d\u5177:"+jsonObject.getString("vehiclesDestroyedWith"), x+750, y+35);
         g2d.drawString("\u521b\u788e\u4eba\u6570:"+jsonObject.getString("roadKills"), x+750, y+85);
         for (int i = 0; i < 36; i++) {
+            g2d.setColor(new Color(255,i*5,255-i*5));
             g2d.fillRoundRect(x+i*25,y+100,20,4,2,2);
         }
     }
@@ -1506,7 +1508,7 @@ public class PlayerData {
         numberAxis.setLabelFont(mc_font.deriveFont(40f));
         numberAxis.setTickLabelFont(mc_font.deriveFont(24f));
         if(max==0) max = 20;
-        numberAxis.setRange(0,name.equals("Kills")?(max+max/2):max+1);
+        numberAxis.setRange(0,max+max/2);
         //
         BarRenderer renderer = (BarRenderer) plot.getRenderer();
         renderer.setDefaultItemLabelsVisible(true);
