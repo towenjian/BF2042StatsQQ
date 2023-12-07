@@ -21,6 +21,7 @@ public class ConfigData {
     private static File data;
     private static Map<String,String> qq_gameID = new HashMap<>();
     private static String welcomeMessage,menuMessage,RequestIssue;
+    private static int tempPlayer = 10;
     private static boolean openWelcome = false,openRequestValidation = false,cx = true,vh = true,wp = true,kd = true,kill = true,cl = true;
     private static final ConfigData configData = new ConfigData();
 
@@ -42,7 +43,6 @@ public class ConfigData {
             config = new File(javaPlugin.getConfigFolder(), "config.yml");
         }
         Yaml yaml = new Yaml();
-//        FileReader configReader = new FileReader(config,StandardCharsets.UTF_8);
         InputStreamReader configReader = new InputStreamReader(Files.newInputStream(config.toPath()),StandardCharsets.UTF_8);
         Map<String,Object> map = yaml.load(configReader);
         groupList = (List<String>) map.get("qqGroup");
@@ -53,6 +53,7 @@ public class ConfigData {
         welcomeMessage = (String) map.get("welcome");
         openWelcome = (boolean) map.get("openWelcome");
         openRequestValidation = (boolean) map.get("openRequestValidation");
+        tempPlayer = (Integer) map.get("tempPlayer");
         cx = (boolean) map.get("cx");
         cl = (boolean) map.get("cl");
         vh = (boolean) map.get("vh");
@@ -187,5 +188,9 @@ public class ConfigData {
 
     public static String getRequestIssue() {
         return RequestIssue;
+    }
+
+    public static int getTempPlayer() {
+        return tempPlayer;
     }
 }

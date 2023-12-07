@@ -9,26 +9,46 @@ public class CapacityPool {
     private static final Map<String,PlayerData> gameID_PlayerData_tempPlayer = new HashMap<>();//临时玩家数据（只允许10个，并且只有6小时缓存时间）
     private static final Map<String,PlayerData> gameID_PlayerData_Group = new LinkedHashMap<>();//群内绑定玩家数据（数量不做限制，仅24小时限制）
     private static final Map<String,String> user_gameID = new HashMap<>();
+
+    /**
+     * 新增player玩家类
+     * @param playerData 增加的player类
+     * @param isBD 是否绑定
+     */
     public static void addPlayerData(PlayerData playerData,int isBD){
         switch (isBD){
-            case 1:
+            case PLAYER_BD:
                 gameID_PlayerData_Group.put(playerData.getName().toLowerCase(), playerData);
                 gameID_PlayerData_Group.get(playerData.getName().toLowerCase()).setTime(24);
                 break;
-            case 0:
-                if (gameID_PlayerData_tempPlayer.size()>=10){
+            case PLAYER_NBD:
+                if (gameID_PlayerData_tempPlayer.size()>=ConfigData.getTempPlayer()){
                     List<String> name = new ArrayList<>( gameID_PlayerData_tempPlayer.keySet());
-                    gameID_PlayerData_tempPlayer.remove(name.get(10).toLowerCase()).removeTimer();
+                    gameID_PlayerData_tempPlayer.remove(name.get(ConfigData.getTempPlayer()).toLowerCase()).removeTimer();
                 }
                 gameID_PlayerData_tempPlayer.put(playerData.getName().toLowerCase(), playerData);
                 gameID_PlayerData_tempPlayer.get(playerData.getName().toLowerCase()).setTime(2);
         }
     }
+
+    /**
+     * 寻找玩家
+     * @param name 玩家的名字
+     * @param isBD 是否绑定
+     * @return true则是含有该玩家的数据类，false则是没有该玩家的数据类
+     */
     public static boolean findPlayerData(String name,int isBD){
         if (isBD==1) return gameID_PlayerData_Group.containsKey(name.toLowerCase());
         if (isBD==0) return gameID_PlayerData_tempPlayer.containsKey(name.toLowerCase());
         return false;
     }
+
+    /**
+     * 获取玩家数据
+     * @param name 玩家名字
+     * @param isBD 是否绑定
+     * @return 返回玩家的数据类
+     */
     public static PlayerData getPlayerData(String name,int isBD){
         if (isBD==1) return gameID_PlayerData_Group.get(name.toLowerCase());
         if (isBD==0) return gameID_PlayerData_tempPlayer.get(name.toLowerCase());
