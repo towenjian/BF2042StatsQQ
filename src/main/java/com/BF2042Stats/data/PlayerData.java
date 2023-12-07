@@ -60,6 +60,7 @@ public class PlayerData {
     *
     * */
     // TODO: 2023/12/8 将线程方式改为线程池处理，减少系统资源占用 
+    // TODO: 2023/12/8 移除多余的指令工厂 
     private final String name,platform;
     private JSONObject jsonObject,KillsJson,KsJson;
     private JSONArray classes,weapons,veh,wp_group_array,veh_group_array;
