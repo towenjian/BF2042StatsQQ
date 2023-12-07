@@ -65,6 +65,7 @@ public class PlayerData {
     private JSONArray classes,weapons,veh,wp_group_array,veh_group_array;
     private final JavaPlugin javaPlugin;
     private final Font mc_font;
+    // TODO: 2023/12/8 移除command？
     private final Command command;
     private final long userID;
     private final Timer timer = new Timer();
