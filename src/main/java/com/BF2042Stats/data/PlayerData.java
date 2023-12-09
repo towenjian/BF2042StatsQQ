@@ -927,149 +927,124 @@ public class PlayerData {
                     .readTimeout(10, TimeUnit.SECONDS)
                     .connectTimeout(10, TimeUnit.SECONDS)
                     .build();
-            String url ="https://api.gametools.network/bf2042/stats/?raw=false&format_values=true&name="+name+"&platform="+platform+"&skip_battlelog=false";
+            //https://api.gametools.network/bf2042/stats/?raw=false&format_values=true&nucleus_id=1005954469103&platform=pc&skip_battlelog=false
+            String url =(getThread_frequency==5?getIDUrl():"https://api.gametools.network/bf2042/stats/?raw=false&format_values=true&name="+name+"&platform="+platform+"&skip_battlelog=false");
+//            String url2 = "https://api.gametools.network/bf2042/stats/?raw=false&format_values=true&nucleus_id=1005954469103&platform=pc&skip_battlelog=false";
+            if (url==null) {
+                groupMessage.sendGroupMessage("当前ID搜索失败");
+                CapacityPool.removePlayerData(name);
+                return;
+            }
             Request request = new Request.Builder()
                     .url(url)
                     .get().build();
             Call call = okHttpClient.newCall(request);
-            call.enqueue(new Callback() {
-                @Override
-                public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                    if (getThread_frequency<5) {
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                getThread_frequency++;
-                                thread.interrupt();
-                                thread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Get_origin();
-                                    }
-                                });
-                                thread.start();
-                            }
-                        });
-                    }
-                    if(getThread_frequency>=5) {
-                        if (isTime) groupMessage.sendGroupMessage("链接超时,请检查ID与平台是否正确");
-                        else System.out.println("链接超时");
-                        getThread_frequency++;
-                        CapacityPool.removePlayerData(name);
-                    }
-                    System.out.println("链接超时");
-                }
-                @Override
-                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                    int code = response.code();
-                    if (code!=200){
-                        if (getThread_frequency<5) {
-                            SwingUtilities.invokeLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    getThread_frequency++;
-                                    thread.interrupt();
-                                    thread = new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Get_origin();
-                                        }
-                                    });
-                                    thread.start();
-                                }
-                            });
-                        }
-                        if (getThread_frequency>=5) {
-                            if (isTime) groupMessage.sendGroupMessage("查询失败,错误码为:" + code+"|请检查ID与平台是否正确");
-                            else System.out.println("查询失败，错误码为:" + code);
-                            CapacityPool.removePlayerData(name);
-                            getThread_frequency++;
-                        }
-                        System.out.println("错误码："+code);
-                        return;
-                    }
-                    try {
-                        jsonObject = JSONObject.parseObject(response.body().string());
-                    } catch (IOException e) {
-                        if (getThread_frequency<5) {
-                            SwingUtilities.invokeLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    getThread_frequency++;
-                                    thread.interrupt();
-                                    thread = new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Get_origin();
-                                        }
-                                    });
-                                    thread.start();
-                                }
-                            });
-                        }
-                        if (getThread_frequency>=5) {
-                            if (isTime) groupMessage.sendGroupMessage("查询失败,错误码为:" + code+"|请检查ID与平台是否正确");
-                            else System.out.println("查询失败，错误码为:" + code);
-                            CapacityPool.removePlayerData(name);
-                            getThread_frequency++;
-                        }
-                        throw new RuntimeException(e);
-                    }
-                    jsonObject.put("human", jsonObject.getJSONObject("dividedKills").get("human"));
-                    jsonObject.put("melee", jsonObject.getJSONObject("dividedKills").get("melee"));
-                    String str = jsonObject.getString("timePlayed");
-                    String time1 = "null";
-                    if (str.indexOf("days")!=-1){
-                        int D = Integer.parseInt(str.substring(0,str.indexOf(" days,")));
-                        int H = Integer.parseInt(str.substring(str.indexOf(", ")+2,str.indexOf(":")));
-                        String m = str.substring(str.indexOf(":")+1);
-                        int M = Integer.parseInt(m.substring(0,m.indexOf(":")));
-                        time1=String.valueOf(M>=30?D*24+H+1:D*24+H);
-                    } else if (str.indexOf("day" )!=-1) {
-                        int D = Integer.parseInt(str.substring(0,str.indexOf(" day,")));
-                        int H = Integer.parseInt(str.substring(str.indexOf(", ")+2,str.indexOf(":")));
-                        String m = str.substring(str.indexOf(":")+1);
-                        int M = Integer.parseInt(m.substring(0,m.indexOf(":")));
-                        time1=String.valueOf(M>=30?D*24+H+1:D*24+H);
-                    } else {
-                        int H =Integer.parseInt(str.substring(0,str.indexOf(":")));
-                        String m = str.substring(str.indexOf(":")+1);
-                        int M = Integer.parseInt(m.substring(0,m.indexOf(":")));
-                        time1=String.valueOf(M>=30?H+1:H);
-                    }
-                    jsonObject.put("time", time1);
-                    double min = Integer.parseInt(time1)*60;
-                    min = jsonObject.getDoubleValue("human")/min;
-                    BigDecimal bi = new BigDecimal(min);
-                    min = bi.setScale(2, RoundingMode.HALF_UP).doubleValue();
-                    jsonObject.put("inkpm", min);
-                    classes = JsonSort(jsonObject.getJSONArray("classes"));
-                    jsonObject.remove("classes");
-                    weapons = JsonSort(jsonObject.getJSONArray("weapons"));
-                    jsonObject.remove("weapons");
-                    veh = JsonSort(jsonObject.getJSONArray("vehicles"));
-                    jsonObject.remove("vehicles");
-                    wp_group_array = jsonObject.getJSONArray("weaponGroups");
-                    jsonObject.remove("weaponGroups");
-                    veh_group_array = jsonObject.getJSONArray("vehicleGroups");
-                    jsonObject.remove("vehicleGroups");
-                    getThread_frequency=5;
-                    System.out.println("GET over");
-                    if (isTime&&type<=4){
-                        selectMessage(type);
-                    }
+            Response response = call.execute();
+            int code = response.code();
+            if (code!=200){
+                if (getThread_frequency<6) {
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            if (!isOK_Graphs) {
-                                thread_Graphs = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Get_Graphs();
-                                    }
-                                });
-                                thread_Graphs.start();
-                            }
+                            getThread_frequency++;
+                            thread.interrupt();
+                            thread = new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Get_origin();
+                                }
+                            });
+                            thread.start();
+                        }
+                    });
+                }
+                if (getThread_frequency>=6) {
+                    if (isTime) groupMessage.sendGroupMessage("查询失败,错误码为:" + code+"|请检查ID与平台是否正确");
+                    else System.out.println("查询失败，错误码为:" + code);
+                    CapacityPool.removePlayerData(name);
+                    getThread_frequency++;
+                }
+                System.out.println("错误码："+code);
+                return;
+            }
+            try {
+                jsonObject = JSONObject.parseObject(response.body().string());
+            } catch (IOException e) {
+                if (getThread_frequency<5) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            getThread_frequency++;
+                            thread.interrupt();
+                            thread = new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Get_origin();
+                                }
+                            });
+                            thread.start();
+                        }
+                    });
+                }
+                if (getThread_frequency>=6) {
+                    if (isTime) groupMessage.sendGroupMessage("查询失败,错误码为:" + code+"|请检查ID与平台是否正确");
+                    else System.out.println("查询失败，错误码为:" + code);
+                    CapacityPool.removePlayerData(name);
+                    getThread_frequency++;
+                }
+                throw new RuntimeException(e);
+            }
+            jsonObject.put("human", jsonObject.getJSONObject("dividedKills").get("human"));
+            jsonObject.put("melee", jsonObject.getJSONObject("dividedKills").get("melee"));
+            String str = jsonObject.getString("timePlayed");
+            String time1 = "null";
+            if (str.indexOf("days")!=-1){
+                int D = Integer.parseInt(str.substring(0,str.indexOf(" days,")));
+                int H = Integer.parseInt(str.substring(str.indexOf(", ")+2,str.indexOf(":")));
+                String m = str.substring(str.indexOf(":")+1);
+                int M = Integer.parseInt(m.substring(0,m.indexOf(":")));
+                time1=String.valueOf(M>=30?D*24+H+1:D*24+H);
+            } else if (str.indexOf("day" )!=-1) {
+                int D = Integer.parseInt(str.substring(0,str.indexOf(" day,")));
+                int H = Integer.parseInt(str.substring(str.indexOf(", ")+2,str.indexOf(":")));
+                String m = str.substring(str.indexOf(":")+1);
+                int M = Integer.parseInt(m.substring(0,m.indexOf(":")));
+                time1=String.valueOf(M>=30?D*24+H+1:D*24+H);
+            } else {
+                int H =Integer.parseInt(str.substring(0,str.indexOf(":")));
+                String m = str.substring(str.indexOf(":")+1);
+                int M = Integer.parseInt(m.substring(0,m.indexOf(":")));
+                time1=String.valueOf(M>=30?H+1:H);
+            }
+            jsonObject.put("time", time1);
+            double min = Integer.parseInt(time1)*60;
+            min = jsonObject.getDoubleValue("human")/min;
+            BigDecimal bi = new BigDecimal(min);
+            min = bi.setScale(2, RoundingMode.HALF_UP).doubleValue();
+            jsonObject.put("inkpm", min);
+            classes = JsonSort(jsonObject.getJSONArray("classes"));
+            jsonObject.remove("classes");
+            weapons = JsonSort(jsonObject.getJSONArray("weapons"));
+            jsonObject.remove("weapons");
+            veh = JsonSort(jsonObject.getJSONArray("vehicles"));
+            jsonObject.remove("vehicles");
+            wp_group_array = jsonObject.getJSONArray("weaponGroups");
+            jsonObject.remove("weaponGroups");
+            veh_group_array = jsonObject.getJSONArray("vehicleGroups");
+            jsonObject.remove("vehicleGroups");
+            getThread_frequency=5;
+            System.out.println("GET over");
+            if (isTime&&type<=4){
+                selectMessage(type);
+            }
+            //查找Kill数据,仅当基本数据查找成功后才会搜索
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    thread_Graphs = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Get_Graphs();
                         }
                     });
                 }
@@ -1101,8 +1076,50 @@ public class PlayerData {
         }
     }
 
+    private String getIDUrl(){
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .build();
+        String url = "https://api.gametools.network/bf2042/player/?name="+name;
+        Request request = new Request.Builder()
+                .get()
+                .url(url)
+                .build();
+        Call call = okHttpClient.newCall(request);
+        String uid = null,temp = null;
+        try {
+            Response response = call.execute();
+            int code = response.code();
+            if (code!=200){
+                groupMessage.sendGroupMessage("当前ID搜索失败，请检查ID是否正确");
+                return null;
+            }
+            JSONArray jsonArray = JSONObject.parseObject(response.body().string()).getJSONArray("results");
+            temp = "pc";
+            uid = null;
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                if (jsonObject1.getString("name").equalsIgnoreCase(name)) {
+                    uid = jsonObject1.getString("nucleusId");
+                    temp = jsonObject1.getString("platform");
+                    break;
+                }
+            }
+            return uid==null?null:"https://api.gametools.network/bf2042/stats/?raw=false&format_values=true&nucleus_id="+uid+"&platform="+temp+"&skip_battlelog=false";
+        } catch (IOException e) {
+            groupMessage.sendGroupMessage("当前ID搜索失败，请检查ID是否正确");
+            return null;
+        }
+    }
     private void Get_Graphs(){
         if (isOK_Graphs) return;
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         getThread_Graphs++;
         System.out.println("GET_G");
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
@@ -1181,7 +1198,7 @@ public class PlayerData {
     }
 
     /**
-     * 用于返回改对象的剩余时间
+     * 用于返回该对象的剩余时间
      * @return 返回改对象的剩余时间
      */
     public int getTime(){

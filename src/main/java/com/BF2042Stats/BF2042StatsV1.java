@@ -1,12 +1,15 @@
 package com.BF2042Stats;
 
 import com.BF2042Stats.data.ConfigData;
+import com.BF2042Stats.gui.ActivityMain;
 import com.BF2042Stats.listen.Command;
 import com.BF2042Stats.listen.ListenQqBot;
 import net.mamoe.mirai.console.extension.PluginComponentStorage;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
 import org.jetbrains.annotations.NotNull;
+
+import javax.swing.*;
 
 public final class BF2042StatsV1 extends JavaPlugin {
     public static final BF2042StatsV1 INSTANCE = new BF2042StatsV1();
@@ -35,6 +38,13 @@ public final class BF2042StatsV1 extends JavaPlugin {
         command.GroupMessage();
         command.MemberJoin();
         command.joinGroupMessage();
+        // TODO: 2023/12/9 图形化界面
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                ActivityMain activityMain = new ActivityMain();
+            }
+        });
     }
     public static JavaPlugin getJP(){
         return javaPlugin;
