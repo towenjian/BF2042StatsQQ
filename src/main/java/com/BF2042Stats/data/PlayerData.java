@@ -231,6 +231,12 @@ public class PlayerData {
         file1.delete();
         img_file.delete();
     }
+
+    /**
+     * 对武器，专家，载具进行降序排列
+     * @param jsonArray 输入需要排序的jsonArray
+     * @return 返回排序完成的JsonArray，降序
+     */
     private JSONArray JsonSort(JSONArray jsonArray){
         int n = jsonArray.size();
         for (int i = 1; i < n; i++) {
@@ -244,6 +250,12 @@ public class PlayerData {
         }
         return jsonArray;
     }
+
+    /**
+     * 处理玩家图形和其他为空的情况
+     * @param s url
+     * @return 图形不为空返回原本url，为空返回一条新的url
+     */
     private String isNull(String s){
         if (s.isEmpty()){
             return "https://moe.jitsu.top/img/?sort=1080p&size=sq256";
@@ -827,6 +839,11 @@ public class PlayerData {
         String reply = "玩家："+name+" 最近的一次活动时间为"+Mapping_table.get(Mapping_table.size()-1);
         groupMessage.sendGroupMessage(reply);
     }
+
+    /**
+     * 设置每个数据类存在的时间，单位为小时
+     * @param time 设置销毁倒计时
+     */
     public void setTime(int time){
         this.time = time;
         TimeDelay();
@@ -1076,6 +1093,10 @@ public class PlayerData {
         }
     }
 
+    /**
+     * 因为有时候玩家的数据并不能通过name直接获取，所以该函数会通过name获取数字ID再返回新的url
+     * @return 返回含有数字ID的url，直接get就好，为null则没有该玩家id
+     */
     private String getIDUrl(){
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .writeTimeout(10, TimeUnit.SECONDS)
