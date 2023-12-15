@@ -7,6 +7,7 @@ import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.Member;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.event.events.GroupTempMessageEvent;
 import net.mamoe.mirai.message.MessageReceipt;
 import net.mamoe.mirai.message.data.*;
 
@@ -15,6 +16,7 @@ public class GroupMessage {
     private MessageChain messages;
     private final Group group;
     private GroupMessageEvent event;
+    private GroupTempMessageEvent groupTempMessageEvent;
     private final Command command;
     private final JavaPlugin javaPlugin;
     private final Bot bot;
@@ -26,7 +28,7 @@ public class GroupMessage {
 
     /**
      * 指令实例化玩家数据
-     * @param event 群聊消息时间
+     * @param event 群聊消息事件
      * @param command commamd实例
      * @param bot 机器人实例
      * @param s 指令串
@@ -61,6 +63,24 @@ public class GroupMessage {
         this.user = user;
         this.quoteReply = receipt.quote();
     }
+
+    /**
+     * 私聊消息方法
+     * @param groupTempMessageEvent 私聊事件
+     * @param command command实例
+     * @param bot 机器人实例
+     * @param s 命令串
+     */
+    public GroupMessage(GroupTempMessageEvent groupTempMessageEvent, Command command, Bot bot, String[] s) {
+        this.groupTempMessageEvent = groupTempMessageEvent;
+        this.command = command;
+        this.bot = bot;
+        this.s = s;
+        this.group = groupTempMessageEvent.getGroup();
+        this.user = groupTempMessageEvent.getSender().getId();
+        this.javaPlugin = BF2042StatsV1.getJP();
+    }
+
     public Group getGroup() {
         return group;
     }
@@ -84,11 +104,27 @@ public class GroupMessage {
                 .append(new QuoteReply(messages))
                 .append(reply)
                 .build());
-        else {
+        else if (receipt!=null){
             group.sendMessage(new MessageChainBuilder()
                             .append(receipt.quote())
                             .append(reply)
                             .build());
+        }
+        else groupTempMessageEvent.getSender().sendMessage(reply);
+    }
+
+    /**
+     * 发送群聊图片或者私聊图片
+     * @param image
+     */
+    public void sendImgMessage(Image image){
+        if (groupTempMessageEvent==null) {
+            group.sendMessage(new MessageChainBuilder()
+                    .append(getMessages() != null ? new QuoteReply(getMessages()) : getQuoteReply())
+                    .append(image)
+                    .build());
+        }else {
+            groupTempMessageEvent.getSender().sendMessage(image);
         }
     }
 

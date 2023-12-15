@@ -38,6 +38,7 @@ public final class BF2042StatsV1 extends JavaPlugin {
         command.GroupMessage();
         command.MemberJoin();
         command.joinGroupMessage();
+        command.PrivateChat();
         // TODO: 2023/12/9 图形化界面
         SwingUtilities.invokeLater(new Runnable() {
             @Override

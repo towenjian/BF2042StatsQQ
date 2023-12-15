@@ -22,7 +22,7 @@ public class ConfigData {
     private static Map<String,String> qq_gameID = new HashMap<>();
     private static String welcomeMessage,menuMessage,RequestIssue;
     private static int tempPlayer = 10;
-    private static boolean openWelcome = false,openRequestValidation = false,cx = true,vh = true,wp = true,kd = true,kill = true,cl = true;
+    private static boolean openWelcome = false,openRequestValidation = false,cx = true,vh = true,wp = true,kd = true,kill = true,cl = true,PrivateChatSearch = false;
     private static final ConfigData configData = new ConfigData();
 
     private ConfigData() {
@@ -59,6 +59,7 @@ public class ConfigData {
         vh = (boolean) map.get("vh");
         wp = (boolean) map.get("wp");
         kd = (boolean) map.get("kd");
+        PrivateChatSearch = (boolean) map.get("PrivateChatSearch");
         kill = (boolean) map.get("kill");
         menuMessage = (String) map.get("menuMessage");
         RequestIssue = (String) map.get("RequestIssue");
@@ -85,6 +86,15 @@ public class ConfigData {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    /**
+     * 检查是否是允许的群聊列表
+     * @param groupID 传入检查的群聊id
+     * @return true则为是允许的列表，false则相反
+     */
+    public static boolean isGroupList(long groupID){
+       return groupList.contains(String.valueOf(groupID));
     }
     public static boolean isBD(long qq){
         if (qq_gameID==null) return false;
@@ -160,6 +170,14 @@ public class ConfigData {
 
     public static boolean isCl() {
         return cl;
+    }
+
+    public static boolean isPrivateChatSearch() {
+        return PrivateChatSearch;
+    }
+
+    public static void setPrivateChatSearch(boolean privateChatSearch) {
+        PrivateChatSearch = privateChatSearch;
     }
 
     public static void setCx(boolean cx) {

@@ -32,6 +32,10 @@ public class Command implements TimeCallback {
             list.add(factoryEnum.toString());
         }
     }
+
+    /**
+     * 监听群聊消息
+     */
     public void GroupMessage(){
         GlobalEventChannel.INSTANCE.subscribeAlways(GroupMessageEvent.class, groupMessageEvent -> {
             QuoteReply reply = new QuoteReply(groupMessageEvent.getSource());
@@ -51,6 +55,22 @@ public class Command implements TimeCallback {
                     .append(new QuoteReply(groupMessageEvent.getMessage()))
                     .append("无效命令")
                     .build());
+        });
+    }
+
+    /**
+     * 监听私聊消息
+     */
+    public void PrivateChat(){
+        GlobalEventChannel.INSTANCE.subscribeAlways(GroupTempMessageEvent.class, groupTempMessageEvent -> {
+            if (!ConfigData.isPrivateChatSearch()) return;
+            if (!ConfigData.isGroupList(groupTempMessageEvent.getGroup().getId())) return;
+            MessageChain chain = groupTempMessageEvent.getMessage();
+            if (!chain.contentToString().startsWith("#")) return;
+            String[] temp = chain.contentToString().replace("#", "").split(" ");
+            GroupMessage groupMessage = new GroupMessage(groupTempMessageEvent,this,bot,temp);
+            if (list.contains(temp[0].toLowerCase())) FactoryEnum.valueOf(temp[0].toLowerCase()).getInterfaceData().start(groupMessage);
+            else groupMessage.sendGroupMessage("无效命令");
         });
     }
 

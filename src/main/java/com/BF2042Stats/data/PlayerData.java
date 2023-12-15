@@ -83,6 +83,7 @@ public class PlayerData {
     private int getThread_Graphs=0;
     private final Map<Integer,String> Mapping_table = new LinkedHashMap<>();
     private final List<Integer> list_origin = new ArrayList<>();
+    private CheatCheat cheatCheat;
 
     public PlayerData(GroupMessage groupMessage,String name,String platform,int type) {
         this.type = type;
@@ -172,7 +173,7 @@ public class PlayerData {
                 .watermark((enclosingWidth, enclosingHeight, width, height, insetLeft, insetRight, insetTop, insetBottom) -> new Point(0,0), Thumbnails.of(getClass().getClassLoader().getResourceAsStream("base2.png")).size(1920, 3240).asBufferedImage(), 1f)
                 .watermark(PostionEnum.TX.getPosition(), Thumbnails.of(new URL(isNull(jsonObject.getString("avatar")))).size(165,165).asBufferedImage(),1f)
                 .watermark(PostionEnum.CL.getPosition(), Thumbnails.of(new URL(isNull(classes.getJSONObject(0).getJSONObject("avatarImages").getString("us")))).height(165).asBufferedImage(),1f)
-                .watermark(PostionEnum.P1.getPosition(), Thumbnails.of(getClass().getClassLoader().getResourceAsStream(is_guer?"h.png":(isPro?"pro.png":"ss.png"))).size(165,165).asBufferedImage(), 1f)
+//                .watermark(PostionEnum.P1.getPosition(), Thumbnails.of(getClass().getClassLoader().getResourceAsStream(is_guer?"h.png":(isPro?"pro.png":"ss.png"))).size(165,165).asBufferedImage(), 1f)
                 .watermark(PostionEnum.P2.getPosition(), getWpDataPie(800,800), 1f)
                 .watermark(PostionEnum.P3.getPosition(), getVehDataPie(800,800),1f)
                 .toFile(new File(javaPlugin.getDataFolder(), name+".png"));
@@ -187,10 +188,17 @@ public class PlayerData {
         g2d.drawString("mvps:"+jsonObject.getString("mvp"),190,175);
         //end
         //鉴定
-        g2d.drawString("\u4e00\u773c\u9876\u771f\uff0c\u9274\u5b9a\u4e3a:", is_guer?1305:1365, 85);
-        g2d.setColor(Color.RED);
-        g2d.drawString(is_guer?"\u6211\u4e0d\u5230\u554a\uff1fcpu\u70e7\u4e86":(isPro?"\u5367\u69fd\uff0cpro\u54e5":"\u6211\u662f\u85af\u85af\uff0c\u522b\u635e\u4e86\uff01"), 1565, 125);
+        g2d.setFont(mc_font.deriveFont(30f));
+        g2d.drawString("\u673a\u5668\u4eba\u9274\u5b9a\u7ed3\u679c(\u4ec5\u4f9b\u53c2\u8003):", 1250,53);
+        g2d.setColor(cheatCheat.getColor());
+        g2d.drawString(cheatCheat.getResult(), 1375,93);
+        g2d.drawString("\u539f\u56e0:"+cheatCheat.getReason(), 1200, 145);
         g2d.setColor(Color.BLACK);
+        g2d.drawString("\u8054ban\u67e5\u8be2\u7ed3\u679c:", 1200,185);
+        g2d.setColor(cheatCheat.getBFBanColor());
+        g2d.drawString(cheatCheat.getBFBanResult(), 1440,185);
+        g2d.setColor(Color.BLACK);
+        g2d.setFont(mc_font.deriveFont(40f));
         //end
         //专家
         g2d.drawString("KD:"+classes.getJSONObject(0).getString("killDeath"),810,60);
@@ -222,10 +230,11 @@ public class PlayerData {
         ExternalResource resource = ExternalResource.create(img_file);
         Image image1 = groupMessage.getGroup().uploadImage(resource);
         resource.close();
-        groupMessage.getGroup().sendMessage(new MessageChainBuilder()
-                .append(groupMessage.getMessages()!=null?new QuoteReply(groupMessage.getMessages()):groupMessage.getQuoteReply())
-                .append(image1)
-                .build());
+//        groupMessage.getGroup().sendMessage(new MessageChainBuilder()
+//                .append(groupMessage.getMessages()!=null?new QuoteReply(groupMessage.getMessages()):groupMessage.getQuoteReply())
+//                .append(image1)
+//                .build());
+        groupMessage.sendImgMessage(image1);
         img_file.delete();
         File file1 = new File(javaPlugin.getDataFolder(), name+".png");
         file1.delete();
@@ -381,10 +390,11 @@ public class PlayerData {
         ExternalResource resource = ExternalResource.create(img_file);
         Image image_temp = groupMessage.getGroup().uploadImage(resource);
         resource.close();
-        groupMessage.getGroup().sendMessage(new MessageChainBuilder()
-                .append(groupMessage.getMessages()!=null?new QuoteReply(groupMessage.getMessages()):groupMessage.getQuoteReply())
-                .append(image_temp)
-                .build());
+//        groupMessage.getGroup().sendMessage(new MessageChainBuilder()
+//                .append(groupMessage.getMessages()!=null?new QuoteReply(groupMessage.getMessages()):groupMessage.getQuoteReply())
+//                .append(image_temp)
+//                .build());
+        groupMessage.sendImgMessage(image_temp);
         img_file.delete();
         File file2 = new File(javaPlugin.getDataFolder(), name+"-wp.png");
         file2.delete();
@@ -531,10 +541,11 @@ public class PlayerData {
         ExternalResource resource = ExternalResource.create(img_file);
         Image image_temp = groupMessage.getGroup().uploadImage(resource);
         resource.close();
-        groupMessage.getGroup().sendMessage(new MessageChainBuilder()
-                .append(groupMessage.getMessages()!=null?new QuoteReply(groupMessage.getMessages()):groupMessage.getQuoteReply())
-                .append(image_temp)
-                .build());
+//        groupMessage.getGroup().sendMessage(new MessageChainBuilder()
+//                .append(groupMessage.getMessages()!=null?new QuoteReply(groupMessage.getMessages()):groupMessage.getQuoteReply())
+//                .append(image_temp)
+//                .build());
+        groupMessage.sendImgMessage(image_temp);
         img_file.delete();
         File file2 = new File(javaPlugin.getDataFolder(), name+"-vh.png");
         file2.delete();
@@ -625,10 +636,11 @@ public class PlayerData {
         ExternalResource resource = ExternalResource.create(file);
         Image image1 = groupMessage.getGroup().uploadImage(resource);
         resource.close();
-        groupMessage.getGroup().sendMessage(new MessageChainBuilder()
-                .append(new QuoteReply(groupMessage.getMessages()))
-                .append(image1)
-                .build());
+//        groupMessage.getGroup().sendMessage(new MessageChainBuilder()
+//                .append(new QuoteReply(groupMessage.getMessages()))
+//                .append(image1)
+//                .build());
+        groupMessage.sendImgMessage(image1);
         file.delete();
     }
     public void KDImg(GroupMessage groupMessage){
@@ -714,10 +726,11 @@ public class PlayerData {
         ExternalResource resource = ExternalResource.create(file);
         Image image1 = groupMessage.getGroup().uploadImage(resource);
         resource.close();
-        groupMessage.getGroup().sendMessage(new MessageChainBuilder()
-                .append(groupMessage.getMessages()!=null?new QuoteReply(groupMessage.getMessages()):groupMessage.getQuoteReply())
-                .append(image1)
-                .build());
+//        groupMessage.getGroup().sendMessage(new MessageChainBuilder()
+//                .append(groupMessage.getMessages()!=null?new QuoteReply(groupMessage.getMessages()):groupMessage.getQuoteReply())
+//                .append(image1)
+//                .build());
+        groupMessage.sendImgMessage(image1);
         file.delete();
     }
     public void KillImg(GroupMessage groupMessage){
@@ -799,10 +812,11 @@ public class PlayerData {
         ExternalResource resource = ExternalResource.create(file);
         Image image1 = groupMessage.getGroup().uploadImage(resource);
         resource.close();
-        groupMessage.getGroup().sendMessage(new MessageChainBuilder()
-                .append(groupMessage.getMessages()!=null?new QuoteReply(groupMessage.getMessages()):groupMessage.getQuoteReply())
-                .append(image1)
-                .build());
+//        groupMessage.getGroup().sendMessage(new MessageChainBuilder()
+//                .append(groupMessage.getMessages()!=null?new QuoteReply(groupMessage.getMessages()):groupMessage.getQuoteReply())
+//                .append(image1)
+//                .build());
+        groupMessage.sendImgMessage(image1);
         file.delete();
     }
     public void STImg(GroupMessage groupMessage){
@@ -1051,6 +1065,7 @@ public class PlayerData {
             jsonObject.remove("vehicleGroups");
             getThread_frequency=5;
             System.out.println("GET over");
+            cheatCheat = new CheatCheat(jsonObject,weapons);
             if (isTime&&type<=4){
                 selectMessage(type);
             }
@@ -1064,6 +1079,7 @@ public class PlayerData {
                             Get_Graphs();
                         }
                     });
+                    thread_Graphs.start();
                 }
             });
         } catch (Exception e) {
@@ -1136,11 +1152,6 @@ public class PlayerData {
     }
     private void Get_Graphs(){
         if (isOK_Graphs) return;
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         getThread_Graphs++;
         System.out.println("GET_G");
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
@@ -1181,7 +1192,7 @@ public class PlayerData {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (response.code()!=200){
-                    if (getThread_Graphs>=5&&type>=4){
+                    if (isOK_Graphs&&getThread_Graphs>=5&&type>=4){
                         groupMessage.sendGroupMessage("数据获取失败，请检查id与平台是否正确");
                         CapacityPool.removePlayerData(name);
                     }
@@ -1204,12 +1215,13 @@ public class PlayerData {
                 }
                 isOK_Graphs=true;
                 String data_origin = response.body().string();
-                JSONObject data = JSONObject.parseObject(data_origin).getJSONObject("data").getJSONObject("series");
+                JSONObject data = JSONObject.parseObject(data_origin);
                 if (data.isEmpty()) {
                     graphsIsNull = true;
-                    System.out.println("该玩家未打开隐私");
+                    System.out.println("该玩家未打开隐私或者并未在btr查询过");
                     return;
                 }
+                data = data.getJSONObject("data").getJSONObject("series");
                 KillsJson = data.getJSONObject("Kills");
                 KsJson = data.getJSONObject("KdRatio");
                 System.out.println("GET_Graph over");
@@ -1510,6 +1522,7 @@ public class PlayerData {
     }
     private BufferedImage getChart(JSONObject jsonObject,int w,int y){
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        if (jsonObject==null) return new BufferedImage(w,y,2);
         String name = jsonObject.getJSONObject("metadata").getString("name");
         JSONArray array = jsonObject.getJSONArray("data");
         double max = 0;

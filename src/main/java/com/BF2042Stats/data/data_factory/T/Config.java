@@ -47,6 +47,10 @@ public class Config implements InterfaceData {
                 ConfigData.setCl(isOpen);
                 groupMessage.sendGroupMessage("cl功能已"+(isOpen?"开启":"关闭"));
                 break;
+            case "pr":
+                ConfigData.setPrivateChatSearch(isOpen);
+                groupMessage.sendGroupMessage("私聊功能已"+(isOpen?"开启":"关闭"));
+                break;
             default:
                 groupMessage.sendGroupMessage("当前的方法未找到");
         }
