@@ -160,9 +160,6 @@ public class PlayerData {
         System.out.println("IMG");
         TextMessage();
         groupMessage.sendGroupMessage("正在生成你的基本数据图，等待中。。。");
-        boolean is_guer = false,isPro = false;
-        if (Double.valueOf(jsonObject.getString("headshots").replace("%", ""))>50) is_guer = true;
-        if (jsonObject.getDouble("killDeath")>2&&jsonObject.getDouble("killsPerMinute")>1) isPro=true;
         //test
         //end
         //wp
@@ -574,9 +571,6 @@ public class PlayerData {
             groupMessage.sendGroupMessage("数据暂未被拉取成功，请等待cx程序输出文字数据后在使用此命令");
             return;
         }
-        boolean is_guer = false,isPro = false;
-        if (Double.valueOf(jsonObject.getString("headshots").replace("%", ""))>50) is_guer = true;
-        if (jsonObject.getDouble("killDeath")>2&&jsonObject.getDouble("killsPerMinute")>1) isPro=true;
         Thumbnails.of(new URL("https://moe.jitsu.top/img/?sort=1080p&size=mw1920"))
                 .size(1920,1080)
                 .watermark(new Position() {
@@ -587,7 +581,7 @@ public class PlayerData {
                 }, Thumbnails.of(getClass().getClassLoader().getResourceAsStream("base.png")).size(1920, 1080).asBufferedImage(), 1f)
                 .watermark(PostionEnum.TX.getPosition(), Thumbnails.of(new URL(isNull(jsonObject.getString("avatar")))).size(165,165).asBufferedImage(),1f)
                 .watermark(PostionEnum.CL.getPosition(), Thumbnails.of(new URL(isNull(classes.getJSONObject(0).getJSONObject("avatarImages").getString("us")))).height(165).asBufferedImage(),1f)
-                .watermark(PostionEnum.P1.getPosition(), Thumbnails.of(getClass().getClassLoader().getResourceAsStream(is_guer?"h.png":(isPro?"pro.png":"ss.png"))).size(165,165).asBufferedImage(), 1f)
+//                .watermark(PostionEnum.P1.getPosition(), Thumbnails.of(getClass().getClassLoader().getResourceAsStream(is_guer?"h.png":(isPro?"pro.png":"ss.png"))).size(165,165).asBufferedImage(), 1f)
                 .toFile(new File(javaPlugin.getDataFolder(),name+"-cl.png"));
         File file = new File(javaPlugin.getDataFolder(),name+"-cl.png");
         BufferedImage image = ImageIO.read(file);
@@ -600,10 +594,17 @@ public class PlayerData {
         g2d.drawString("mvps:"+jsonObject.getString("mvp"),190,175);
         //end
         //鉴定
-        g2d.drawString("\u4e00\u773c\u9876\u771f\uff0c\u9274\u5b9a\u4e3a:", is_guer?1305:1365, 85);
-        g2d.setColor(Color.RED);
-        g2d.drawString(is_guer?"\u6211\u4e0d\u5230\u554a\uff1fcpu\u70e7\u4e86":(isPro?"\u5367\u69fd\uff0cpro\u54e5":"\u6211\u662f\u85af\u85af\uff0c\u522b\u635e\u4e86\uff01"), 1565, 125);
+        g2d.setFont(mc_font.deriveFont(30f));
+        g2d.drawString("\u673a\u5668\u4eba\u9274\u5b9a\u7ed3\u679c(\u4ec5\u4f9b\u53c2\u8003):", 1250,53);
+        g2d.setColor(cheatCheat.getColor());
+        g2d.drawString(cheatCheat.getResult(), 1375,93);
+        g2d.drawString("\u539f\u56e0:"+cheatCheat.getReason(), 1200, 145);
         g2d.setColor(Color.BLACK);
+        g2d.drawString("\u8054ban\u67e5\u8be2\u7ed3\u679c:", 1200,185);
+        g2d.setColor(cheatCheat.getBFBanColor());
+        g2d.drawString(cheatCheat.getBFBanResult(), 1440,185);
+        g2d.setColor(Color.BLACK);
+        g2d.setFont(mc_font.deriveFont(40f));
         //end
         //专家
         g2d.drawString("KD:"+classes.getJSONObject(0).getString("killDeath"),810,60);
@@ -962,7 +963,7 @@ public class PlayerData {
             String url =(getThread_frequency==5?getIDUrl():"https://api.gametools.network/bf2042/stats/?raw=false&format_values=true&name="+name+"&platform="+platform+"&skip_battlelog=false");
 //            String url2 = "https://api.gametools.network/bf2042/stats/?raw=false&format_values=true&nucleus_id=1005954469103&platform=pc&skip_battlelog=false";
             if (url==null) {
-                groupMessage.sendGroupMessage("当前ID搜索失败");
+                 if (isTime) groupMessage.sendGroupMessage("当前ID搜索失败");
                 CapacityPool.removePlayerData(name);
                 return;
             }
@@ -1130,7 +1131,7 @@ public class PlayerData {
             Response response = call.execute();
             int code = response.code();
             if (code!=200){
-                groupMessage.sendGroupMessage("当前ID搜索失败，请检查ID是否正确");
+                if (isTime)groupMessage.sendGroupMessage("当前ID搜索失败，请检查ID是否正确");
                 return null;
             }
             JSONArray jsonArray = JSONObject.parseObject(response.body().string()).getJSONArray("results");

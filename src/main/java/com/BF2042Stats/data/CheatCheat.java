@@ -77,15 +77,15 @@ public class CheatCheat {
         }
         if (kills_ju/kills_wp<0.5&&btl_all>35) {
             isSuspicious = true;
-            reason = "狙击步枪击杀占比小于50%且爆头率过高";
+            if (!isHacker)  reason = "狙击步枪击杀占比小于50%且爆头率过高";
         }
         if (jsonObject.getDouble("inkpm")>3.5) {
             isSuspicious = true;
-            reason = "真实kpm超过3.5";
+            if (!isHacker) reason = "真实kpm超过3.5";
         }
         if (jsonObject.getDouble("infantryKillDeath")>8) {
             isSuspicious = true;
-            reason = "真实kd过高";
+            if (!isHacker) reason = "真实kd过高";
         }
         if (jsonObject.getDouble("killDeath")>2&&jsonObject.getDouble("killsPerMinute")>1) isPro = true;
     }
@@ -154,10 +154,10 @@ public class CheatCheat {
         if (isSuspicious){
             return Color.YELLOW;
         }
-        return Color.GREEN;
+        return new Color(36, 168, 91);
     }
     public Color getBFBanColor(){
         if (isHacker_BFBan) return Color.RED;
-        return Color.GREEN;
+        return new Color(36, 168, 91);
     }
 }
