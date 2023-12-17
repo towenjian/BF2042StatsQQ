@@ -839,11 +839,6 @@ public class PlayerData {
         });
         st_T.start();
     }
-    /*
-    * TODO
-    *  把st的图片增加，加长图片高度，增加所有饼状图
-    *
-    * */
     private void ST(GroupMessage groupMessage) throws IOException {
         this.groupMessage = groupMessage;
         groupMessage.sendGroupMessage("正在汇总状态图，请等待");
