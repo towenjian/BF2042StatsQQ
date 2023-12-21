@@ -2,6 +2,7 @@ package com.BF2042Stats.data;
 
 import com.BF2042Stats.BF2042StatsV1;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -18,11 +19,12 @@ public class ConfigData {
     private static long qqBot;
     private static String user;
     private static List<String> groupList = new ArrayList<>();
-    private static File data;
+    private static File data,config;
     private static Map<String,String> qq_gameID = new HashMap<>();
+    private static Map<String,Object> map = new HashMap<>();
     private static String welcomeMessage,menuMessage,RequestIssue;
     private static int tempPlayer = 10;
-    private static boolean openWelcome = false,openRequestValidation = false,cx = true,vh = true,wp = true,kd = true,kill = true,cl = true,PrivateChatSearch = false;
+    private static boolean openWelcome = false,openRequestValidation = false,cx = true,vh = true,wp = true,kd = true,kill = true,cl = true,PrivateChatSearch = false,preGet = false;
     private static final ConfigData configData = new ConfigData();
 
     private ConfigData() {
@@ -37,14 +39,14 @@ public class ConfigData {
         return configData;
     }
     private static void init() throws IOException {
-        File config = new File(javaPlugin.getConfigFolder(), "config.yml");
+        config = new File(javaPlugin.getConfigFolder(), "config.yml");
         if (!config.exists()){
             Files.copy(javaPlugin.getResourceAsStream("config.yml"), config.toPath());
             config = new File(javaPlugin.getConfigFolder(), "config.yml");
         }
         Yaml yaml = new Yaml();
         InputStreamReader configReader = new InputStreamReader(Files.newInputStream(config.toPath()),StandardCharsets.UTF_8);
-        Map<String,Object> map = yaml.load(configReader);
+        map = yaml.load(configReader);
         groupList = (List<String>) map.get("qqGroup");
         System.out.println(groupList);
         user = (String) map.get("user");
@@ -59,6 +61,7 @@ public class ConfigData {
         vh = (boolean) map.get("vh");
         wp = (boolean) map.get("wp");
         kd = (boolean) map.get("kd");
+        preGet = (boolean) map.get("preGet");
         PrivateChatSearch = (boolean) map.get("PrivateChatSearch");
         kill = (boolean) map.get("kill");
         menuMessage = (String) map.get("menuMessage");
@@ -182,6 +185,7 @@ public class ConfigData {
 
     public static void setCx(boolean cx) {
         ConfigData.cx = cx;
+        map.put("cx",cx);
     }
 
     public static void setVh(boolean vh) {
@@ -190,18 +194,22 @@ public class ConfigData {
 
     public static void setWp(boolean wp) {
         ConfigData.wp = wp;
+        map.put("wp", wp);
     }
 
     public static void setKd(boolean kd) {
         ConfigData.kd = kd;
+        map.put("kd",kd);
     }
 
     public static void setKill(boolean kill) {
         ConfigData.kill = kill;
+        map.put("kill",kill);
     }
 
     public static void setCl(boolean cl) {
         ConfigData.cl = cl;
+        map.put("cl",cl);
     }
 
     public static String getRequestIssue() {
@@ -210,5 +218,23 @@ public class ConfigData {
 
     public static int getTempPlayer() {
         return tempPlayer;
+    }
+
+    public static boolean isPreGet() {
+        return preGet;
+    }
+
+    public static void setPreGet(boolean preGet) {
+        ConfigData.preGet = preGet;
+        map.put("preGet",preGet);
+    }
+    public static void stop() throws IOException {
+        OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(config.toPath()),StandardCharsets.UTF_8);
+        DumperOptions options = new DumperOptions();
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        options.setPrettyFlow(true);
+        Yaml yaml = new Yaml(options);
+        yaml.dump(map,writer);
+        System.out.println("配置文件已保存");
     }
 }

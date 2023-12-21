@@ -10,6 +10,7 @@ import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.io.IOException;
 
 public final class BF2042StatsV1 extends JavaPlugin {
     public static final BF2042StatsV1 INSTANCE = new BF2042StatsV1();
@@ -47,6 +48,17 @@ public final class BF2042StatsV1 extends JavaPlugin {
             }
         });
     }
+
+    @Override
+    public void onDisable() {
+        super.onDisable();
+        try {
+            ConfigData.stop();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static JavaPlugin getJP(){
         return javaPlugin;
     }

@@ -103,7 +103,12 @@ public class PlayerData {
         }
     }
     private void Get(){
-        thread = new Thread(this::Get_origin);
+        thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Get_BaseData(5);
+            }
+        });
         thread.start();
     }
     private void TextMessage(){
@@ -682,7 +687,6 @@ public class PlayerData {
                 .watermark(PostionEnum.Base.getPosition(), Thumbnails.of(getClass().getClassLoader().getResourceAsStream("chart.png")).size(1920, 1080).asBufferedImage(), 1f)
                 .watermark(PostionEnum.TX.getPosition(), Thumbnails.of(new URL(isNull(jsonObject.getString("avatar")))).size(165,165).asBufferedImage(),1f)
                 .watermark(PostionEnum.CL.getPosition(), Thumbnails.of(new URL(isNull(classes.getJSONObject(0).getJSONObject("avatarImages").getString("us")))).height(165).asBufferedImage(),1f)
-                .watermark( PostionEnum.P1.getPosition(), Thumbnails.of(getClass().getClassLoader().getResourceAsStream(is_guer?"h.png":(isPro?"pro.png":"ss.png"))).size(165,165).asBufferedImage(), 1f)
                 .watermark(new Position() {
                     @Override
                     public Point calculate(int enclosingWidth, int enclosingHeight, int width, int height, int insetLeft, int insetRight, int insetTop, int insetBottom) {
@@ -701,10 +705,17 @@ public class PlayerData {
         g2d.drawString("mvps:"+jsonObject.getString("mvp"),190,175);
         //end
         //鉴定
-        g2d.drawString("\u4e00\u773c\u9876\u771f\uff0c\u9274\u5b9a\u4e3a:", is_guer?1305:1365, 85);
-        g2d.setColor(Color.RED);
-        g2d.drawString(is_guer?"\u6211\u4e0d\u5230\u554a\uff1fcpu\u70e7\u4e86":(isPro?"\u5367\u69fd\uff0cpro\u54e5":"\u6211\u662f\u85af\u85af\uff0c\u522b\u635e\u4e86\uff01"), 1565, 125);
+        g2d.setFont(mc_font.deriveFont(30f));
+        g2d.drawString("\u673a\u5668\u4eba\u9274\u5b9a\u7ed3\u679c(\u4ec5\u4f9b\u53c2\u8003):", 1250,53);
+        g2d.setColor(cheatCheat.getColor());
+        g2d.drawString(cheatCheat.getResult(), 1375,93);
+        g2d.drawString("\u539f\u56e0:"+cheatCheat.getReason(), 1200, 145);
         g2d.setColor(Color.BLACK);
+        g2d.drawString("\u8054ban\u67e5\u8be2\u7ed3\u679c:", 1200,185);
+        g2d.setColor(cheatCheat.getBFBanColor());
+        g2d.drawString(cheatCheat.getBFBanResult(), 1440,185);
+        g2d.setColor(Color.BLACK);
+        g2d.setFont(mc_font.deriveFont(40f));
         //end
         //专家
         g2d.drawString("KD:"+classes.getJSONObject(0).getString("killDeath"),810,60);
@@ -760,21 +771,12 @@ public class PlayerData {
         }
         this.groupMessage = groupMessage;
         groupMessage.sendGroupMessage("正在生成你的击杀状态图，等待中");
-        boolean is_guer = false,isPro = false;
-        if (Double.valueOf(jsonObject.getString("headshots").replace("%", ""))>50) is_guer = true;
-        if (jsonObject.getDouble("killDeath")>2&&jsonObject.getDouble("killsPerMinute")>1) isPro=true;
         Thumbnails.of(new URL("https://moe.jitsu.top/img/?sort=1080p&size=mw1920"))
                 .size(1920,1080)
                 .watermark(PostionEnum.Base.getPosition(), Thumbnails.of(getClass().getClassLoader().getResourceAsStream("chart.png")).size(1920, 1080).asBufferedImage(), 1f)
                 .watermark(PostionEnum.TX.getPosition(), Thumbnails.of(new URL(isNull(jsonObject.getString("avatar")))).size(165,165).asBufferedImage(),1f)
                 .watermark(PostionEnum.CL.getPosition(), Thumbnails.of(new URL(isNull(classes.getJSONObject(0).getJSONObject("avatarImages").getString("us")))).height(165).asBufferedImage(),1f)
-                .watermark( PostionEnum.P1.getPosition(), Thumbnails.of(getClass().getClassLoader().getResourceAsStream(is_guer?"h.png":(isPro?"pro.png":"ss.png"))).size(165,165).asBufferedImage(), 1f)
-                .watermark(new Position() {
-                    @Override
-                    public Point calculate(int enclosingWidth, int enclosingHeight, int width, int height, int insetLeft, int insetRight, int insetTop, int insetBottom) {
-                        return new Point(20,400);
-                    }
-                }, getChart(KillsJson,1874,626),1f)
+                .watermark((enclosingWidth, enclosingHeight, width, height, insetLeft, insetRight, insetTop, insetBottom) -> new Point(20,400), getChart(KillsJson,1874,626),1f)
                 .toFile(new File(javaPlugin.getDataFolder(),name+"kill.png"));
         File file = new File(javaPlugin.getDataFolder(),name+"kill.png");
         BufferedImage image = ImageIO.read(file);
@@ -787,10 +789,17 @@ public class PlayerData {
         g2d.drawString("mvps:"+jsonObject.getString("mvp"),190,175);
         //end
         //鉴定
-        g2d.drawString("\u4e00\u773c\u9876\u771f\uff0c\u9274\u5b9a\u4e3a:", is_guer?1305:1365, 85);
-        g2d.setColor(Color.RED);
-        g2d.drawString(is_guer?"\u6211\u4e0d\u5230\u554a\uff1fcpu\u70e7\u4e86":(isPro?"\u5367\u69fd\uff0cpro\u54e5":"\u6211\u662f\u85af\u85af\uff0c\u522b\u635e\u4e86\uff01"), 1565, 125);
+        g2d.setFont(mc_font.deriveFont(30f));
+        g2d.drawString("\u673a\u5668\u4eba\u9274\u5b9a\u7ed3\u679c(\u4ec5\u4f9b\u53c2\u8003):", 1250,53);
+        g2d.setColor(cheatCheat.getColor());
+        g2d.drawString(cheatCheat.getResult(), 1375,93);
+        g2d.drawString("\u539f\u56e0:"+cheatCheat.getReason(), 1200, 145);
         g2d.setColor(Color.BLACK);
+        g2d.drawString("\u8054ban\u67e5\u8be2\u7ed3\u679c:", 1200,185);
+        g2d.setColor(cheatCheat.getBFBanColor());
+        g2d.drawString(cheatCheat.getBFBanResult(), 1440,185);
+        g2d.setColor(Color.BLACK);
+        g2d.setFont(mc_font.deriveFont(40f));
         //end
         //专家
         g2d.drawString("KD:"+classes.getJSONObject(0).getString("killDeath"),810,60);
@@ -813,10 +822,6 @@ public class PlayerData {
         ExternalResource resource = ExternalResource.create(file);
         Image image1 = groupMessage.getGroup().uploadImage(resource);
         resource.close();
-//        groupMessage.getGroup().sendMessage(new MessageChainBuilder()
-//                .append(groupMessage.getMessages()!=null?new QuoteReply(groupMessage.getMessages()):groupMessage.getQuoteReply())
-//                .append(image1)
-//                .build());
         groupMessage.sendImgMessage(image1);
         file.delete();
     }
@@ -905,18 +910,10 @@ public class PlayerData {
     private void selectMessage(int i) throws IOException {
         switch (i){
             case GetType.CX:
-                try {
-                    ImgMessage(groupMessage);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);//基本图
-                }
+                ImgMessage(groupMessage);
                 break;
             case GetType.WP:
-                try {
-                    WP(groupMessage);//武器图
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                WP(groupMessage);//武器图
                 break;
             case GetType.VH:
                 VEH(groupMessage);//载具图
@@ -925,7 +922,7 @@ public class PlayerData {
                 KD(groupMessage);//kd图
                 break;
             case GetType.KILL:
-                Kill(groupMessage);//kpm图
+                Kill(groupMessage);//kill图
                 break;
             case GetType.ST:
                 ST(groupMessage);//所有集合图
@@ -944,7 +941,7 @@ public class PlayerData {
     }
 
     /**
-     * 查询玩家数据的源程序
+     * 查询玩家数据的源程序(已经废弃)
      */
     private void Get_origin(){
         try {
@@ -1596,5 +1593,129 @@ public class PlayerData {
         renderer.setDefaultItemLabelsVisible(true);
         renderer.setBarPainter(new StandardBarPainter());
         return chart.createBufferedImage(w, y);
+    }
+    /**
+     * 查询玩家数据的源程序
+     */
+    private void Get_BaseData(int attempts)  {
+        attempts=attempts-1;
+        System.out.println(attempts);
+        if (attempts<0) {
+            CapacityPool.removePlayerData(name.toLowerCase());
+            return;
+        }
+        //作用与前置查询的方法,开关取决与配置文件
+        try {
+        if (ConfigData.isPreGet()){
+            OkHttpClient pre_okhttpClient = new OkHttpClient.Builder()
+                    .writeTimeout(10, TimeUnit.SECONDS)
+                    .readTimeout(10, TimeUnit.SECONDS)
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .build();
+            String pre_url = "https://api.gametools.network/bfglobal/games?name="+name+"&platform="+platform+"&";
+            Request pre_request = new Request.Builder()
+                    .get()
+                    .url(pre_url)
+                    .build();
+            Call preCall = pre_okhttpClient.newCall(pre_request);
+            Response pre_rsponse = preCall.execute();
+            int pre_code = pre_rsponse.code();
+            if (pre_code==200){
+                JSONObject pre_json = JSONObject.parseObject(pre_rsponse.body().string());
+                Thread.sleep(2000);//延缓查询的速度
+            }
+        }
+
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .writeTimeout(10, TimeUnit.SECONDS)
+                    .readTimeout(10, TimeUnit.SECONDS)
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .build();
+            String url =(attempts==0?getIDUrl():"https://api.gametools.network/bf2042/all/?format_values=false&lang=zh-tw&platform="+platform+"&name="+name+"&");
+            if (url == null) {
+                groupMessage.sendGroupMessage("错误ID无法被搜索到，已经尝试5次");
+                CapacityPool.removePlayerData(name.toLowerCase());
+                return;
+            }
+            Request request = new Request.Builder()
+                    .get()
+                    .url(url)
+                    .build();
+            Call call = okHttpClient.newCall(request);
+            Response response = call.execute();
+            int code = response.code();
+            if (code!=200&&attempts>0){
+                Get_BaseData(attempts);
+                return;
+            } else if (code!=200&&attempts==0&&isTime) {
+                groupMessage.sendGroupMessage("错误码:"+code+"| 请检查ID与平台是否正确");
+                CapacityPool.removePlayerData(name.toLowerCase());
+                return;
+            }
+            jsonObject = JSONObject.parseObject(response.body().string());
+            jsonObject.put("human", jsonObject.getJSONObject("dividedKills").get("human"));
+            jsonObject.put("melee", jsonObject.getJSONObject("dividedKills").get("melee"));
+            String str = jsonObject.getString("timePlayed");
+            String time1 = "null";
+            if (str.indexOf("days")!=-1){
+                int D = Integer.parseInt(str.substring(0,str.indexOf(" days,")));
+                int H = Integer.parseInt(str.substring(str.indexOf(", ")+2,str.indexOf(":")));
+                String m = str.substring(str.indexOf(":")+1);
+                int M = Integer.parseInt(m.substring(0,m.indexOf(":")));
+                time1=String.valueOf(M>=30?D*24+H+1:D*24+H);
+            } else if (str.indexOf("day" )!=-1) {
+                int D = Integer.parseInt(str.substring(0,str.indexOf(" day,")));
+                int H = Integer.parseInt(str.substring(str.indexOf(", ")+2,str.indexOf(":")));
+                String m = str.substring(str.indexOf(":")+1);
+                int M = Integer.parseInt(m.substring(0,m.indexOf(":")));
+                time1=String.valueOf(M>=30?D*24+H+1:D*24+H);
+            } else {
+                int H =Integer.parseInt(str.substring(0,str.indexOf(":")));
+                String m = str.substring(str.indexOf(":")+1);
+                int M = Integer.parseInt(m.substring(0,m.indexOf(":")));
+                time1=String.valueOf(M>=30?H+1:H);
+            }
+            jsonObject.put("time", time1);
+            double min = Integer.parseInt(time1)*60;
+            min = jsonObject.getDoubleValue("human")/min;
+            BigDecimal bi = new BigDecimal(min);
+            min = bi.setScale(2, RoundingMode.HALF_UP).doubleValue();
+            jsonObject.put("inkpm", min);
+            classes = JsonSort(jsonObject.getJSONArray("classes"));
+            jsonObject.remove("classes");
+            weapons = JsonSort(jsonObject.getJSONArray("weapons"));
+            jsonObject.remove("weapons");
+            veh = JsonSort(jsonObject.getJSONArray("vehicles"));
+            jsonObject.remove("vehicles");
+            wp_group_array = jsonObject.getJSONArray("weaponGroups");
+            jsonObject.remove("weaponGroups");
+            veh_group_array = jsonObject.getJSONArray("vehicleGroups");
+            jsonObject.remove("vehicleGroups");
+            getThread_frequency=5;
+            cheatCheat = new CheatCheat(jsonObject,weapons);
+            if (isTime&&type<=4){
+                selectMessage(type);
+            }
+            System.out.println("GET_BaseData is ok");
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    thread_Graphs = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Get_Graphs();
+                        }
+                    });
+                    thread_Graphs.start();
+                }
+            });
+        } catch (IOException | InterruptedException e) {
+            if (attempts==0&&isTime) {
+                groupMessage.sendGroupMessage("链接超时");
+                CapacityPool.removePlayerData(name.toLowerCase());
+            }
+            else Get_BaseData(attempts);
+            throw new RuntimeException(e);
+        }
     }
 }

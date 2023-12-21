@@ -157,15 +157,15 @@ public class CheatCheat {
     }
     public Color getColor(){
         if (isHacker){
-            return Color.RED;
+            return new Color(209, 22, 8);
         }
         if (isSuspicious){
-            return Color.YELLOW;
+            return new Color(232, 155, 0);
         }
         return new Color(36, 168, 91);
     }
     public Color getBFBanColor(){
-        if (isHacker_BFBan) return Color.RED;
+        if (isHacker_BFBan) return new Color(209, 22, 8);
         return new Color(36, 168, 91);
     }
 }

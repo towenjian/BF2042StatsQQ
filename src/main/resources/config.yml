@@ -12,6 +12,7 @@ menuMessage: "   小助手菜单\n可用的功能有：\n-1.2042战绩查询，�
 openRequestValidation: false #对于是否开启入群验证，入群自动验证
 RequestIssue: ""#填写你的入群问题，负责无法正确验证
 tempPlayer: 10 #临时玩家允许的数量，请不要设置太多
+preGet: false #该选项作用与查询前的准备，用于适应api抽风的情况，如果api无法正常获取并且id无法被搜索请打开此选项试试
 PrivateChatSearch: false
 cx: true
 cl: true
