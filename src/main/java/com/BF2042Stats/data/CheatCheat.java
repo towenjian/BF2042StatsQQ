@@ -34,6 +34,7 @@ public class CheatCheat {
     * */
     private boolean isHacker = false,isPro = false,isSuspicious = false,isHacker_BFBan = false;
     private double kills,kills_human,kills_ju=0,kills_wp = 0,btl_all;
+    private int suspiciousMember = 0,hackerMember = 0;
 
     public CheatCheat(JSONObject jsonObject,JSONArray wp_array) {
         this.jsonObject = jsonObject;
@@ -57,12 +58,19 @@ public class CheatCheat {
             if (j.getString("type").equals("Bolt Action")) kills_ju += j.getDouble("kills");
             else if (!j.getString("type").equals("DMR")&&j.getDouble("kills")>100){
                 if (Double.parseDouble(j.getString("headshots").replace("%", ""))>30&&!j.getString("weaponName").equals("Rorsch Mk-4")) {
-                    isSuspicious = true;
-                    reason = "部分自动武器爆头率高于30%";
+                    suspiciousMember++;
+                    if (suspiciousMember>=3)
+                    {
+                        isSuspicious = true;
+                        reason = "大部分自动武器爆头率高于30%";
+                    }
                 }
                 if (Double.parseDouble(j.getString("headshots").replace("%", ""))>35&&j.getDouble("killsPerMinute")>2&&!j.getString("weaponName").equals("Rorsch Mk-4")) {
-                    isHacker = true;
-                    reason = "部分自动武器爆头率高于35%，并且kpm过高";
+                    hackerMember++;
+                    if (hackerMember>=3){
+                        isHacker = true;
+                        reason = "大部分自动武器爆头率高于35%，并且kpm过高";
+                    }
                 }
             }
             if (j.getString("weaponName").equals("Rorsch Mk-4")) {
@@ -108,7 +116,7 @@ public class CheatCheat {
             return;
         }
         String data_ori = response.body().string();
-        isHacker_BFBan = JSONObject.parseObject(data_ori).getJSONObject("names").getJSONObject(jsonObject.getString("userName")).getBoolean("hacker");
+        isHacker_BFBan = JSONObject.parseObject(data_ori).getJSONObject("names").getJSONObject(jsonObject.getString("userName").toLowerCase()).getBoolean("hacker");
     }
 
     public boolean isHacker() {

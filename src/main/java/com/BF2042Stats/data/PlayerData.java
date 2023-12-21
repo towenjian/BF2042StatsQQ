@@ -949,13 +949,38 @@ public class PlayerData {
     private void Get_origin(){
         try {
             System.out.println("GET");
+            //准备工作
+            OkHttpClient planGet = new OkHttpClient.Builder()
+                    .writeTimeout(10, TimeUnit.SECONDS)
+                    .readTimeout(10, TimeUnit.SECONDS)
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .build();
+            String planUrl = "https://api.gametools.network/bfglobal/games?name="+name+"&platform="+platform+"&";
+            Request planRequest = new Request.Builder()
+                    .get()
+                    .url(planUrl)
+                    .build();
+            Call planCall = planGet.newCall(planRequest);
+            Response planResponse = planCall.execute();
+            int planCode = planResponse.code();
+            if (planCode==200){
+                JSONObject planJson = JSONObject.parseObject(planResponse.body().string());
+                System.out.println("plan is ok");
+                Thread.sleep(1000);
+            }
+
+
+            //
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
                     .writeTimeout(10, TimeUnit.SECONDS)
                     .readTimeout(10, TimeUnit.SECONDS)
                     .connectTimeout(10, TimeUnit.SECONDS)
                     .build();
+            //先抓https://api.gametools.network/bfglobal/games?name=geyanghuayi&platform=pc&，后面就能正常获取数据
             //https://api.gametools.network/bf2042/stats/?raw=false&format_values=true&nucleus_id=1005954469103&platform=pc&skip_battlelog=false
-            String url =(getThread_frequency==5?getIDUrl():"https://api.gametools.network/bf2042/stats/?raw=false&format_values=true&name="+name+"&platform="+platform+"&skip_battlelog=false");
+            //https://api.gametools.network/bf2042/all/?format_values=false&lang=zh-tw&platform=pc&name=hhhh6448&
+            //"https://api.gametools.network/bf2042/stats/?raw=false&format_values=true&name="+name+"&platform="+platform+"&skip_battlelog=false"
+            String url =(getThread_frequency==5?getIDUrl():"https://api.gametools.network/bf2042/all/?format_values=false&lang=zh-tw&platform="+platform+"&name="+name+"&");
 //            String url2 = "https://api.gametools.network/bf2042/stats/?raw=false&format_values=true&nucleus_id=1005954469103&platform=pc&skip_battlelog=false";
             if (url==null) {
                  if (isTime) groupMessage.sendGroupMessage("当前ID搜索失败");
@@ -1061,6 +1086,7 @@ public class PlayerData {
             jsonObject.remove("vehicleGroups");
             getThread_frequency=5;
             System.out.println("GET over");
+            System.out.println(jsonObject);
             cheatCheat = new CheatCheat(jsonObject,weapons);
             if (isTime&&type<=4){
                 selectMessage(type);
