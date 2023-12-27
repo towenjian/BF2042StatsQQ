@@ -78,6 +78,12 @@ public class ConfigData {
         if (qq_gameID==null) qq_gameID = new HashMap<>();
     }
 
+    /**
+     * 设置绑定玩家与ID及平台
+     * @param qq qq号
+     * @param ID_Pt 类型为"id#pt"自行拼接
+     * @return 设置完成返回true反之亦然
+     */
     public static boolean setGameID(String qq,String ID_Pt){
         try {
             if (qq_gameID==null) qq_gameID = new HashMap<>();
@@ -99,19 +105,61 @@ public class ConfigData {
     public static boolean isGroupList(long groupID){
        return groupList.contains(String.valueOf(groupID));
     }
+
+    /**
+     * 检查该qq号是否绑定
+     * @param qq qq号
+     * @return true则为已经绑定false则相反
+     */
     public static boolean isBD(long qq){
         if (qq_gameID==null) return false;
         return qq_gameID.containsKey(String.valueOf(qq));
     }
+
+    /**
+     * 检查该玩家ID是否已经绑定
+     * @param name 玩家ID
+     * @return true则为已经绑定false则相反
+     */
     public static boolean isBD(String name){
         if (qq_gameID == null) return false;
         return qq_gameID.values().stream().map(s -> s.split("#")[0].toLowerCase()).collect(Collectors.toList()).contains(name.toLowerCase());
     }
+
+    /**
+     * 清楚绑定的玩家数据
+     * @param qq 需要清楚的qq号
+     */
+    public static void removeBD(long qq){
+        qq_gameID.remove(String.valueOf(qq));
+    }
+
+    /**
+     * 返回绑定的玩家数据
+     * @param qq qq号
+     * @return 返回绑定的数据格式为"id#pt" 自行使用spilt分割
+     */
     public static String GameID(long qq){
         return qq_gameID.getOrDefault(String.valueOf(qq), null);
     }
+
+    /**
+     * 获取管理员账号
+     * @return 返回管理员号码
+     */
     public static String getUser() {
         return user;
+    }
+
+    /**
+     * 改变admin账号
+     * @param num 管理员的账号
+     */
+    public static void changeAdmin(String num){
+        if (num==null) return;
+        if (num.length()<6) return;
+        user = num;
+        map.put("user",user);
     }
 
     /**
@@ -130,15 +178,33 @@ public class ConfigData {
     public static List<String> getGroupList() {
         return groupList;
     }
+
+    /**
+     * 获取欢迎消息
+     * @return 返回入群欢迎字符串
+     */
     public static String getWelcomeMessage(){
         if (welcomeMessage==null) return "null";
         return welcomeMessage;
+    }
+
+    /**
+     * 设置入群欢迎字符串
+     * @param message 入群欢迎的字符串
+     */
+    public static void setWelcomeMessage(String message){
+        welcomeMessage = message;
+        map.put("welcome",welcomeMessage);
     }
     public static boolean isOpenWelcome(){
         return openWelcome;
     }
     public static String getMenuMessage(){
         return menuMessage;
+    }
+    public static void setMenuMessage(String message){
+        menuMessage = message;
+        map.put("menuMessage",menuMessage);
     }
     public static void reload() throws IOException {
         init();
@@ -181,6 +247,7 @@ public class ConfigData {
 
     public static void setPrivateChatSearch(boolean privateChatSearch) {
         PrivateChatSearch = privateChatSearch;
+        map.put("PrivateChatSearch",privateChatSearch);
     }
 
     public static void setCx(boolean cx) {
@@ -190,6 +257,7 @@ public class ConfigData {
 
     public static void setVh(boolean vh) {
         ConfigData.vh = vh;
+        map.put("vh",vh);
     }
 
     public static void setWp(boolean wp) {
@@ -212,6 +280,20 @@ public class ConfigData {
         map.put("cl",cl);
     }
 
+    public static boolean isOpenRequestValidation() {
+        return openRequestValidation;
+    }
+
+    public static void setOpenRequestValidation(boolean openRequestValidation) {
+        ConfigData.openRequestValidation = openRequestValidation;
+        map.put("openRequestValidation",openRequestValidation);
+    }
+
+    public static void setOpenWelcome(boolean openWelcome) {
+        ConfigData.openWelcome = openWelcome;
+        map.put("openWelcome",openWelcome);
+    }
+
     public static String getRequestIssue() {
         return RequestIssue;
     }
@@ -231,10 +313,29 @@ public class ConfigData {
     public static void stop() throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(config.toPath()),StandardCharsets.UTF_8);
         DumperOptions options = new DumperOptions();
+        map.put("qqGroup",groupList);
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         options.setPrettyFlow(true);
         Yaml yaml = new Yaml(options);
         yaml.dump(map,writer);
         System.out.println("配置文件已保存");
+    }
+
+    /**
+     * 增加允许的群聊
+     * @param num 群聊号
+     */
+    public static void addGroupList(String num){
+        if (num==null) return;
+        groupList.add(num);
+    }
+
+    /**
+     * 移除群聊号
+     * @param num 需要被移除的群聊
+     * @return 成功移除则会返回true反之亦然
+     */
+    public static boolean removeGroupList(String num){
+        return groupList.remove(num);
     }
 }

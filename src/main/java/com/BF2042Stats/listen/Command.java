@@ -9,6 +9,7 @@ import com.BF2042Stats.data.data_enum.FactoryEnum;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.console.events.ConsoleEvent;
 import net.mamoe.mirai.contact.Group;
+import net.mamoe.mirai.contact.Member;
 import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.events.*;
 import net.mamoe.mirai.message.MessageReceipt;
@@ -142,13 +143,24 @@ public class Command implements TimeCallback {
 
         });
     }
+    public void exitGroup(){
+        GlobalEventChannel.INSTANCE.subscribeAlways(MemberLeaveEvent.class,memberLeaveEvent -> {
+            Member member = memberLeaveEvent.getMember();
+            if (ConfigData.isBD(member.getId())){
+                ConfigData.removeBD(member.getId());
+                memberLeaveEvent.getGroup().sendMessage(new MessageChainBuilder()
+                        .append(member.getId()+"已经离开了我们，已经清除绑定的ID")
+                        .build());
+            }
+        });
+    }
     public void MemberJoin(){//玩家加入消息
         GlobalEventChannel.INSTANCE.subscribeAlways(MemberJoinEvent.class, new Consumer<MemberJoinEvent>() {
             @Override
             public void accept(MemberJoinEvent memberJoinEvent) {
                 memberJoinEvent.getGroup().sendMessage(new MessageChainBuilder()
                         .append(new At(memberJoinEvent.getMember().getId()))
-                        .append("  欢迎欢迎,使用#cd查看小助手菜单")
+                        .append(ConfigData.getWelcomeMessage())
                         .build());
             }
         });

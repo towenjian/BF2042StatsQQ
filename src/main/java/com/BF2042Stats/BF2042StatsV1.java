@@ -44,9 +44,20 @@ public final class BF2042StatsV1 extends JavaPlugin {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                ActivityMain activityMain = new ActivityMain();
+                ActivityMain activityMain = ActivityMain.getInstance();
+                try {
+                    activityMain.show();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
+//        ActivityMain activityMain = ActivityMain.getInstance();
+//        try {
+//            activityMain.show();
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     @Override

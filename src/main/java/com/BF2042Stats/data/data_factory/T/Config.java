@@ -3,6 +3,7 @@ package com.BF2042Stats.data.data_factory.T;
 import com.BF2042Stats.data.ConfigData;
 import com.BF2042Stats.data.GroupMessage;
 import com.BF2042Stats.data.data_interface.InterfaceData;
+import com.BF2042Stats.gui.ActivityMain;
 
 public class Config implements InterfaceData {
     @Override
@@ -22,6 +23,8 @@ public class Config implements InterfaceData {
             groupMessage.sendGroupMessage(groupMessage.getS()[2]+"<-该参数不是正确的bool类型");
             throw new RuntimeException(e);
         }
+        ActivityMain activityMain = ActivityMain.getInstance();
+        activityMain.setFun(groupMessage.getS()[1].toLowerCase(),isOpen);
         switch (groupMessage.getS()[1].toLowerCase()){
             case "cx":
                 ConfigData.setCx(isOpen);

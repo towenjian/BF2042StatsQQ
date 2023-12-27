@@ -116,6 +116,7 @@ public class CheatCheat {
             return;
         }
         String data_ori = response.body().string();
+        response.close();
         isHacker_BFBan = JSONObject.parseObject(data_ori).getJSONObject("names").getJSONObject(jsonObject.getString("userName").toLowerCase()).getBoolean("hacker");
     }
 
@@ -143,6 +144,9 @@ public class CheatCheat {
         }
         if (isPro){
             return "普肉哥罢了，轻点捞";
+        }
+        if (jsonObject.getString("userName").equals("hhhh6448")){
+            return "而已你，我的英雄，你才是真正的Pro";
         }
         else return "我是薯薯不要捞我了！";
     }

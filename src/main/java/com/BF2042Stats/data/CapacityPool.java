@@ -15,7 +15,7 @@ public class CapacityPool {
      * @param playerData 增加的player类
      * @param isBD 是否绑定
      */
-    public static void addPlayerData(PlayerData playerData,int isBD){
+    public static PlayerData addPlayerData(PlayerData playerData,int isBD){
         switch (isBD){
             case PLAYER_BD:
                 gameID_PlayerData_Group.put(playerData.getName().toLowerCase(), playerData);
@@ -29,6 +29,7 @@ public class CapacityPool {
                 gameID_PlayerData_tempPlayer.put(playerData.getName().toLowerCase(), playerData);
                 gameID_PlayerData_tempPlayer.get(playerData.getName().toLowerCase()).setTime(2);
         }
+        return playerData;
     }
 
     /**
@@ -54,6 +55,11 @@ public class CapacityPool {
         if (isBD==0) return gameID_PlayerData_tempPlayer.get(name.toLowerCase());
         return null;
     }
+
+    /**
+     * 移除该玩家数据在所有缓存里面寻找
+     * @param name 改玩家的数据
+     */
     public static void removePlayerData(String name){
         if (gameID_PlayerData_Group.containsKey(name.toLowerCase())) {
             gameID_PlayerData_Group.remove(name.toLowerCase()).removeTimer();
@@ -62,6 +68,20 @@ public class CapacityPool {
             gameID_PlayerData_tempPlayer.remove(name.toLowerCase()).removeTimer();
         }
         System.out.println("玩家:"+name+"的数据已经被移除");
+    }
+
+    /**
+     * 移除特定的玩家数据
+     * @param name 玩家名字
+     * @param isBD 是否绑定
+     */
+    public static void removePlayerData(String name,int isBD){
+        if (isBD == CapacityPool.PLAYER_BD&&findPlayerData(name,CapacityPool.PLAYER_BD)) {
+            gameID_PlayerData_Group.remove(name.toLowerCase()).removeTimer();
+        }
+        if (isBD == CapacityPool.PLAYER_NBD&&findPlayerData(name,CapacityPool.PLAYER_NBD)){
+            gameID_PlayerData_tempPlayer.remove(name.toLowerCase()).removeTimer();
+        }
     }
     public static int getPlayerBd(){
         return gameID_PlayerData_Group.size();
