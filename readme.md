@@ -64,10 +64,12 @@
 **这些指令都需要加入#作为前缀，否则机器人不会反应**
 
 -cx
-基本的查询指令，输出基本数据和数据图，数据图较为大，可能会等待片刻![img.png](img.png)![img_1.png](img_1.png)![img_2.png](img_2.png)
+基本的查询指令，输出基本数据和数据图，数据图较为大，可能会等待片刻![img_4.png](public/img/img1.png)
 
 -cl 查询玩家专家的数据指令
-![img_3.png](img_3.png)
+![cl](public/img/cl1.png)
+
+[//]: # (![test]&#40;https://moe.jitsu.top/img/?sort=mp&size=mw1920&#41;)
 
 
 -wp 查询玩家武器的数据指令
@@ -83,8 +85,10 @@
 -cd 菜单指令
 
 -kill 获取玩家每日的击杀情况，将会已条状图的方式显示出来
+![kill](public/img/kill.png)
 
 -kd 获取玩家每日的kd变化，显示同上
+![kd](public/img/kd.png)
 
 
 
