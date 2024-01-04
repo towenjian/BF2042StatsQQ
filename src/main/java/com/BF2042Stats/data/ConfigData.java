@@ -19,8 +19,8 @@ public class ConfigData {
     private static long qqBot;
     private static String user;
     private static List<String> groupList = new ArrayList<>();
-    private static File data,config;
-    private static Map<String,String> qq_gameID = new HashMap<>();
+    private static File data,config,customResults;
+    private static Map<String,String> qq_gameID = new HashMap<>(),customResultsMap = new HashMap<>();
     private static Map<String,Object> map = new HashMap<>();
     private static String welcomeMessage,menuMessage,RequestIssue;
     private static int tempPlayer = 10;
@@ -40,9 +40,14 @@ public class ConfigData {
     }
     private static void init() throws IOException {
         config = new File(javaPlugin.getConfigFolder(), "config.yml");
+        customResults = new File(javaPlugin.getConfigFolder(),"customResults.yml");
         if (!config.exists()){
             Files.copy(javaPlugin.getResourceAsStream("config.yml"), config.toPath());
             config = new File(javaPlugin.getConfigFolder(), "config.yml");
+        }
+        if (!customResults.exists()){
+            customResults.createNewFile();
+            customResults = new File(javaPlugin.getConfigFolder(), "customResults.yml");
         }
         Yaml yaml = new Yaml();
         InputStreamReader configReader = new InputStreamReader(Files.newInputStream(config.toPath()),StandardCharsets.UTF_8);
@@ -76,6 +81,47 @@ public class ConfigData {
         Yaml dataYaml = new Yaml();
         qq_gameID = dataYaml.load(dataReader);
         if (qq_gameID==null) qq_gameID = new HashMap<>();
+        Yaml customResultsYml = new Yaml();
+        InputStreamReader customResultsReader = new InputStreamReader(Files.newInputStream(customResults.toPath()),StandardCharsets.UTF_8);
+        customResultsMap = customResultsYml.load(customResultsReader);
+    }
+
+    /**
+     * 设置玩家的单独鉴定结果,输入null则会清除数据
+     * @param name 玩家ID
+     * @param s 设置的鉴定结果
+     */
+    public static void setCustomResultsMap(String name,String s){
+        if (customResultsMap == null) customResultsMap = new HashMap<>();
+        if (s.equals("null")){
+            removeCustomResultsMap(name);
+        }else customResultsMap.put(name.toLowerCase(),s);
+    }
+
+    /**
+     * 获取玩家的特制鉴定结果
+     * @param name 玩家名字
+     * @return 返回玩家的特制鉴定结果
+     */
+    public static String getCusTomResult(String name){
+        if (customResultsMap==null) return null;
+        return customResultsMap.getOrDefault(name.toLowerCase(), null);
+    }
+
+    /**
+     * 返回玩家的鉴定结果map
+     * @return 返回玩家的鉴定结果map
+     */
+    public static Map<String,String> getCustomResultsMap(){
+        return customResultsMap;
+    }
+
+    /**
+     * 移除玩家的鉴定结果
+     * @param name 玩家名字
+     */
+    public static void removeCustomResultsMap(String name){
+        customResultsMap.remove(name.toLowerCase());
     }
 
     /**
@@ -95,6 +141,9 @@ public class ConfigData {
         } catch (IOException e) {
             return false;
         }
+    }
+    public static Map<String,String> getQq_gameID(){
+        return qq_gameID;
     }
 
     /**
@@ -132,6 +181,9 @@ public class ConfigData {
      */
     public static void removeBD(long qq){
         qq_gameID.remove(String.valueOf(qq));
+    }
+    public static void removeBD(String qq){
+        qq_gameID.remove(qq);
     }
 
     /**
@@ -310,6 +362,11 @@ public class ConfigData {
         ConfigData.preGet = preGet;
         map.put("preGet",preGet);
     }
+
+    /**
+     * 插件关闭时保存配置文件
+     * @throws IOException 异常
+     */
     public static void stop() throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(config.toPath()),StandardCharsets.UTF_8);
         DumperOptions options = new DumperOptions();
@@ -319,6 +376,14 @@ public class ConfigData {
         Yaml yaml = new Yaml(options);
         yaml.dump(map,writer);
         System.out.println("配置文件已保存");
+        OutputStreamWriter writer1 = new OutputStreamWriter(Files.newOutputStream(customResults.toPath()),StandardCharsets.UTF_8);
+        Yaml yaml1 = new Yaml();
+        yaml1.dump(customResultsMap,writer1);
+
+        if (qq_gameID==null) qq_gameID = new HashMap<>();
+        FileWriter dataWriter = new FileWriter(data);
+        Yaml yaml2 = new Yaml();
+        yaml2.dump(qq_gameID, dataWriter);
     }
 
     /**

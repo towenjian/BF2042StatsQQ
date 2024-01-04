@@ -8,6 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -34,14 +36,19 @@ public class ConfigActivity {
     private JCheckBox openKD;
     private JCheckBox openKill;
     private JList<String> list_qqGroup;
+    private JButton btn_BD;
+    private JButton btn_customResults;
     //
     private Font font;
+    private JFrame jFrame;
 
-    public ConfigActivity() {
+    public ConfigActivity(JFrame jFrame) {
         bind();
         init();
+        this.jFrame = jFrame;
     }
-    private void init(){
+
+    private void init() {
         InputStream fontFile = getClass().getClassLoader().getResourceAsStream("AL.ttf");
         try {
             font = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(40f);
@@ -65,6 +72,7 @@ public class ConfigActivity {
         openKD.setSelected(ConfigData.isKd());
         openKill.setSelected(ConfigData.isKill());
     }
+
     private void bind() {
         //qq群组
         DefaultListModel<String> model = new DefaultListModel<>();
@@ -78,7 +86,7 @@ public class ConfigActivity {
                 JOptionPane.showMessageDialog(null, "群号请不要为空", "ERROR", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-            if(num.length()<6){
+            if (num.length() < 6) {
                 JOptionPane.showMessageDialog(null, "这群号正确吗？", "ERROR", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
@@ -89,7 +97,7 @@ public class ConfigActivity {
             if (!listSelectionEvent.getValueIsAdjusting()) {
                 int result = JOptionPane.showConfirmDialog(null, "你确定要删除这个群号吗？", "Confirmation", JOptionPane.YES_NO_OPTION);
                 if (result == JOptionPane.YES_OPTION) {
-                    int index =list_qqGroup.getSelectedIndex();
+                    int index = list_qqGroup.getSelectedIndex();
                     if (index != -1) {
                         ConfigData.removeGroupList(model.remove(index));
                     }
@@ -99,8 +107,8 @@ public class ConfigActivity {
             }
         });
         btn_changeAdmin.addActionListener(actionEvent -> {
-            String num =  qqAndim_input.getText();
-            if (num.length()<6){
+            String num = qqAndim_input.getText();
+            if (num.length() < 6) {
                 JOptionPane.showMessageDialog(null, "admin账号你确定？", "ERROR", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
@@ -127,9 +135,40 @@ public class ConfigActivity {
         openWP.addItemListener(itemEvent -> ConfigData.setWp(itemEvent.getStateChange() == ItemEvent.SELECTED));
         openKD.addItemListener(itemEvent -> ConfigData.setKd(itemEvent.getStateChange() == ItemEvent.SELECTED));
         openKill.addItemListener(itemEvent -> ConfigData.setKill(itemEvent.getStateChange() == ItemEvent.SELECTED));
+        btn_BD.addActionListener(actionEvent -> {
+            JFrame jFrame1 = new JFrame("绑定数据页");
+            jFrame1.setSize(1600, 1000);
+            jFrame1.setContentPane(new ActivityBD().$$$getRootComponent$$$());
+            jFrame1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            jFrame1.setVisible(true);
+            jFrame.setEnabled(false);
+            jFrame1.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    super.windowClosed(e);
+                    jFrame.setEnabled(true);
+                }
+            });
+        });
+        btn_customResults.addActionListener(actionEvent -> {
+            JFrame jFrame1 = new JFrame("特制化鉴定结果页");
+            jFrame1.setSize(1600, 1000);
+            jFrame1.setContentPane(new AcvtivityCustomResults().$$$getRootComponent$$$());
+            jFrame1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            jFrame1.setVisible(true);
+            jFrame.setEnabled(false);
+            jFrame1.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    super.windowClosed(e);
+                    jFrame.setEnabled(true);
+                }
+            });
+        });
     }
-    public void setUse(@NotNull String gn, boolean isOpen){
-        switch (gn){
+
+    public void setUse(@NotNull String gn, boolean isOpen) {
+        switch (gn) {
             case "cx":
                 openCX.setSelected(isOpen);
                 break;
@@ -162,6 +201,12 @@ public class ConfigActivity {
     public JPanel getRootPanel() {
         return rootPanel;
     }
+    //gui更改后运行此处注释的代码
+//    public static void main(String[] args) {
+//        JFrame jFrame = new JFrame();
+//        jFrame.setContentPane(new ConfigActivity().getRootPanel());
+//        jFrame.setVisible(true);
+//    }
 
     {
 // GUI initializer generated by IntelliJ IDEA GUI Designer
@@ -257,11 +302,8 @@ public class ConfigActivity {
         label9.setText("功能开关");
         configPanel.add(label9, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel7 = new JPanel();
-        panel7.setLayout(new GridLayoutManager(3, 3, new Insets(0, 0, 0, 0), -1, -1));
+        panel7.setLayout(new GridLayoutManager(4, 3, new Insets(0, 0, 0, 0), -1, -1));
         configPanel.add(panel7, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        openRequestValidation = new JCheckBox();
-        openRequestValidation.setText("是否打开入群验证");
-        panel7.add(openRequestValidation, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         openPre = new JCheckBox();
         openPre.setText("是否打开前置查询");
         panel7.add(openPre, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -286,6 +328,15 @@ public class ConfigActivity {
         openKill = new JCheckBox();
         openKill.setText("kill功能");
         panel7.add(openKill, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        openRequestValidation = new JCheckBox();
+        openRequestValidation.setText("是否打开入群验证");
+        panel7.add(openRequestValidation, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btn_BD = new JButton();
+        btn_BD.setText("进入绑定数据页");
+        panel7.add(btn_BD, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btn_customResults = new JButton();
+        btn_customResults.setText("进入特定鉴定结果页");
+        panel7.add(btn_customResults, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
@@ -294,4 +345,5 @@ public class ConfigActivity {
     public JComponent $$$getRootComponent$$$() {
         return rootPanel;
     }
+
 }

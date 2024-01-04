@@ -142,12 +142,15 @@ public class CheatCheat {
         if (isSuspicious){
             return "该玩家数据可疑机器人无法判断";
         }
+        if (ConfigData.getCusTomResult(jsonObject.getString("userName"))!=null){
+            return ConfigData.getCusTomResult(jsonObject.getString("userName"));
+        }
         if (isPro){
             return "普肉哥罢了，轻点捞";
         }
-        if (jsonObject.getString("userName").equals("hhhh6448")){
-            return "而已你，我的英雄，你才是真正的Pro";
-        }
+//        if (jsonObject.getString("userName").equals("hhhh6448")){
+//            return "而你，我的英雄，你才是真正的Pro";
+//        }
         else return "我是薯薯不要捞我了！";
     }
     public String getBFBanResult(){

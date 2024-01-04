@@ -148,8 +148,7 @@ public class Command implements TimeCallback {
             Member member = memberLeaveEvent.getMember();
             if (ConfigData.isBD(member.getId())){
                 ConfigData.removeBD(member.getId());
-                memberLeaveEvent.getGroup().sendMessage(new MessageChainBuilder()
-                        .append(member.getId()+"已经离开了我们，已经清除绑定的ID")
+                memberLeaveEvent.getGroup().sendMessage(new MessageChainBuilder().append(String.valueOf(member.getId())).append("已经离开了我们，已经清除绑定的ID")
                         .build());
             }
         });

@@ -104,12 +104,7 @@ public class PlayerData {
     }
 
     private void Get() {
-        thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Get_BaseData(5);
-            }
-        });
+        thread = new Thread(() -> Get_BaseData(5));
         thread.start();
     }
 
@@ -1271,6 +1266,7 @@ public class PlayerData {
                 if (data.isEmpty()) {
                     graphsIsNull = true;
                     System.out.println("该玩家未打开隐私或者并未在btr查询过");
+                    if (isTime) groupMessage.sendGroupMessage("该玩家未打开隐私或者并未在btr查询过");
                     return;
                 }
                 data = data.getJSONObject("data").getJSONObject("series");
@@ -1308,10 +1304,14 @@ public class PlayerData {
      * @param s 状态图类的时间数据
      * @return 返回时间的最终大小
      */
-    public double num(String s) {
+   public double num(String s) {
+        // 将字符串s按照T分割
         String[] temp = s.split("T");
+        // 将temp[0]按照-分割，temp[1]按照:分割
         String[] temp_l = temp[0].split("-"), temp_r = temp[1].split(":");
+        // 将temp_l[0]、temp_l[1]、temp_l[2]、temp_r[0]、temp_r[1]拼接，并转换为double类型
         double i = Double.parseDouble(temp_l[0] + temp_l[1] + temp_l[2] + temp_r[0] + temp_r[1]);
+        // 返回拼接后的double类型
         return i;
     }
 
@@ -1679,7 +1679,8 @@ public class PlayerData {
                 int pre_code = pre_rsponse.code();
                 if (pre_code == 200) {
                     JSONObject pre_json = JSONObject.parseObject(pre_rsponse.body().string());
-                    Thread.sleep(2000);//延缓查询的速度
+                    Thread.sleep(5000);//延缓查询的速度
+                    pre_rsponse.close();
                 }
             }
 
@@ -1748,17 +1749,9 @@ public class PlayerData {
                 selectMessage(type);
             }
             System.out.println("GET_BaseData is ok");
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    thread_Graphs = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Get_Graphs();
-                        }
-                    });
-                    thread_Graphs.start();
-                }
+            SwingUtilities.invokeLater(() -> {
+                thread_Graphs = new Thread(this::Get_Graphs);
+                thread_Graphs.start();
             });
         } catch (IOException | InterruptedException e) {
             if (attempts == 0 && isTime) {

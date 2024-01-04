@@ -58,6 +58,14 @@ public class Config implements InterfaceData {
                 ConfigData.setPreGet(isOpen);
                 groupMessage.sendGroupMessage("前置查询功能已"+(isOpen?"开启":"关闭"));
                 break;
+            case "cr":
+                if (groupMessage.getS().length<4) {
+                    groupMessage.sendGroupMessage("缺少必要参数");
+                    return;
+                }
+                ConfigData.setCustomResultsMap(groupMessage.getS()[2],groupMessage.getS()[3]);
+                groupMessage.sendGroupMessage("设置完成");
+                break;
             default:
                 groupMessage.sendGroupMessage("当前的方法未找到");
         }
