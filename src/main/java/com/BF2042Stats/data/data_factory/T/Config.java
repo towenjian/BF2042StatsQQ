@@ -66,6 +66,21 @@ public class Config implements InterfaceData {
                 ConfigData.setCustomResultsMap(groupMessage.getS()[2],groupMessage.getS()[3]);
                 groupMessage.sendGroupMessage("设置完成");
                 break;
+            case "gci":
+                if (groupMessage.getS().length<3) {
+                    groupMessage.sendGroupMessage("缺少必要参数");
+                    return;
+                }
+                int time = 0;
+                try {
+                    time = Integer.parseInt(groupMessage.getS()[2]);
+                } catch (NumberFormatException e) {
+                    groupMessage.sendGroupMessage("设置错误，非有效数字");
+                    throw new RuntimeException(e);
+                }
+                ConfigData.setGroupChatInterval(time);
+                groupMessage.sendGroupMessage("群聊查询间隔时间修改为："+groupMessage.getS()[2]);
+                break;
             default:
                 groupMessage.sendGroupMessage("当前的方法未找到");
         }

@@ -24,6 +24,7 @@ public class ConfigData {
     private static Map<String,Object> map = new HashMap<>();
     private static String welcomeMessage,menuMessage,RequestIssue;
     private static int tempPlayer = 10;
+    private static int groupChatInterval = 0;
     private static boolean openWelcome = false,openRequestValidation = false,cx = true,vh = true,wp = true,kd = true,kill = true,cl = true,PrivateChatSearch = false,preGet = false;
     private static final ConfigData configData = new ConfigData();
 
@@ -61,6 +62,7 @@ public class ConfigData {
         openWelcome = (boolean) map.get("openWelcome");
         openRequestValidation = (boolean) map.get("openRequestValidation");
         tempPlayer = (Integer) map.get("tempPlayer");
+        groupChatInterval = (int) map.get("groupChatInterval");
         cx = (boolean) map.get("cx");
         cl = (boolean) map.get("cl");
         vh = (boolean) map.get("vh");
@@ -330,6 +332,24 @@ public class ConfigData {
     public static void setCl(boolean cl) {
         ConfigData.cl = cl;
         map.put("cl",cl);
+    }
+
+    /**
+     *  获取群聊间隔时间
+     * @return 返回群聊时间间隔
+     */
+    public static int getGroupChatInterval() {
+        return groupChatInterval;
+    }
+
+    /**
+     *  设置群聊间隔时间
+     * @param groupChatInterval  群聊间隔时间
+     */
+    public static void setGroupChatInterval(int groupChatInterval) {
+        //设置群聊间隔时间
+        ConfigData.groupChatInterval = groupChatInterval;
+        map.put("groupChatInterval",groupChatInterval);
     }
 
     public static boolean isOpenRequestValidation() {

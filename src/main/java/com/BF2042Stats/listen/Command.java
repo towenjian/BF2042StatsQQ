@@ -18,6 +18,8 @@ import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.message.data.QuoteReply;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -27,6 +29,8 @@ public class Command implements TimeCallback {
     private static Bot bot;
     private static final List<String> list = new ArrayList<>();
     private static final Map<Integer,MemberJoinRequestEvent> requestEventMap = new HashMap<>();
+    //记录最近的消息时间，以便于阻止消息发送
+    private Map<String,LocalDateTime> lastMessageTimeMap = new HashMap<>();
 
     public Command() {
         for (FactoryEnum factoryEnum:FactoryEnum.values()){
@@ -39,16 +43,17 @@ public class Command implements TimeCallback {
      */
     public void GroupMessage(){
         GlobalEventChannel.INSTANCE.subscribeAlways(GroupMessageEvent.class, groupMessageEvent -> {
-            QuoteReply reply = new QuoteReply(groupMessageEvent.getSource());
-            System.out.println(reply.getSource());
-            System.out.println(reply.getSource().getIds()[0]);
-            System.out.println(reply.getSource().getIds().length);
-            System.out.println(ConfigData.getGroupList().contains(String.valueOf(groupMessageEvent.getGroup().getId())));
             if (!ConfigData.getGroupList().contains(String.valueOf(groupMessageEvent.getGroup().getId()))) return;
             MessageChain messageChain = groupMessageEvent.getMessage();
-            System.out.println(messageChain);
-            System.out.println(!messageChain.contentToString().startsWith("#"));
-            if (!messageChain.contentToString().startsWith("#")) return;
+            if (!messageChain.contentToString().startsWith("#")) {
+                lastMessageTimeMap.put(String.valueOf(groupMessageEvent.getGroup().getId()),LocalDateTime.now());
+                return;
+            }
+            LocalDateTime nowTime = LocalDateTime.now();
+            if (lastMessageTimeMap.containsKey(String.valueOf(groupMessageEvent.getGroup().getId())))if (!nowTime.isAfter(lastMessageTimeMap.get(String.valueOf(groupMessageEvent.getGroup().getId())).plusSeconds(ConfigData.getGroupChatInterval()))&&groupMessageEvent.getSender().getPermission().getLevel()==0){
+                groupMessageEvent.getGroup().sendMessage("当前正在聊天，请稍后再发消息，或者私聊查询--剩余时间："+ (ConfigData.getGroupChatInterval()-Duration.between(lastMessageTimeMap.get(String.valueOf(groupMessageEvent.getGroup().getId())),nowTime).getSeconds()));
+                return;
+            }
             String[] temp = messageChain.contentToString().replace("#", "").split(" ");
             GroupMessage groupMessage = new GroupMessage(groupMessageEvent, this,bot,temp);
             if (list.contains(temp[0].toLowerCase())) FactoryEnum.valueOf(temp[0].toLowerCase()).getInterfaceData().start(groupMessage);
@@ -80,10 +85,6 @@ public class Command implements TimeCallback {
      */
     public void joinGroupMessage(){
         GlobalEventChannel.INSTANCE.subscribeAlways(MemberJoinRequestEvent.class, memberJoinRequestEvent -> {
-            System.out.println(memberJoinRequestEvent.component3()+"|1");
-            System.out.println(memberJoinRequestEvent.component7()+"|2");
-            System.out.println(memberJoinRequestEvent.component6()+"|3");
-            System.out.println(memberJoinRequestEvent.getMessage()+"|4");
             String s = memberJoinRequestEvent.getMessage().split("答案：")[1];
             if (isContainsChinese(s)){
                 Objects.requireNonNull(memberJoinRequestEvent.getGroup()).sendMessage(new MessageChainBuilder()
@@ -107,7 +108,6 @@ public class Command implements TimeCallback {
             System.out.println(groupMessageEvent.getSource().getFromId()+"tttt");
             System.out.println(groupMessageEvent.getSource().getIds()[0]);
             if (!requestEventMap.containsKey(groupMessageEvent.getSource().getIds()[0])) return;
-//            if (!(groupMessageEvent.).equals(ConfigData.getQqBot()+"")) return;
             if (groupMessageEvent.getPermission().getLevel()==0) {
                 groupMessageEvent.getSender().sendMessage("非管理员，请不要回复此条消息");
                 return;
