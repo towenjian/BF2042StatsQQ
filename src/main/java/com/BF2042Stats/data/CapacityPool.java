@@ -7,7 +7,15 @@ public class CapacityPool {
     public static final int PLAYER_BD = 1;
     public static final int PLAYER_NBD = 0;
     private static final Map<String,PlayerData> gameID_PlayerData_tempPlayer = new HashMap<>();//临时玩家数据（只允许10个，并且只有6小时缓存时间）
-    private static final Map<String,PlayerData> gameID_PlayerData_Group = new LinkedHashMap<>();//群内绑定玩家数据（数量不做限制，仅24小时限制）
+    private static final Map<String,PlayerData> gameID_PlayerData_Group = new LinkedHashMap<String,PlayerData>(){
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, PlayerData> eldest) {
+            if (size() > ConfigData.getTempPlayer()) {
+                eldest.getValue().removeTimer();
+            }
+            return size() > ConfigData.getTempPlayer();
+        }
+    };//群内绑定玩家数据（数量不做限制，仅24小时限制）
     private static final Map<String,String> user_gameID = new HashMap<>();
 
     /**
@@ -22,10 +30,6 @@ public class CapacityPool {
                 gameID_PlayerData_Group.get(playerData.getName().toLowerCase()).setTime(24);
                 break;
             case PLAYER_NBD:
-                if (gameID_PlayerData_tempPlayer.size()>=ConfigData.getTempPlayer()){
-                    List<String> name = new ArrayList<>( gameID_PlayerData_tempPlayer.keySet());
-                    gameID_PlayerData_tempPlayer.remove(name.get(ConfigData.getTempPlayer()).toLowerCase()).removeTimer();
-                }
                 gameID_PlayerData_tempPlayer.put(playerData.getName().toLowerCase(), playerData);
                 gameID_PlayerData_tempPlayer.get(playerData.getName().toLowerCase()).setTime(2);
         }

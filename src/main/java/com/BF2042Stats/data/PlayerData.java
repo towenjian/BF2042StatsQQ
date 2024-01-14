@@ -62,7 +62,7 @@ public class PlayerData {
     // TODO: 2023/12/8 移除多余的指令工厂 
     private final String name, platform;
     private final JavaPlugin javaPlugin;
-    private final Font mc_font;
+    private Font mc_font;
     // TODO: 2023/12/8 移除command？
     private final Command command;
     private final long userID;
@@ -97,7 +97,9 @@ public class PlayerData {
         Get();
         InputStream fontFile = getClass().getClassLoader().getResourceAsStream("AL.ttf");
         try {
-            mc_font = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(40f);
+            if (fontFile != null) {
+                mc_font = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(40f);
+            }
         } catch (FontFormatException | IOException e) {
             throw new RuntimeException(e);
         }
@@ -884,7 +886,12 @@ public class PlayerData {
             @Override
             public void run() {
                 isTime = false;
-                Get();
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Get();
+                    }
+                });
                 System.out.println("用户：" + userID + "的缓存数据已经被重新拉取，玩家ID为：" + name);
                 if (TimeMember >= time) {
                     CapacityPool.removePlayerData(name);
@@ -969,6 +976,7 @@ public class PlayerData {
     /**
      * 查询玩家数据的源程序(已经废弃)
      */
+    @Deprecated
     private void Get_origin() {
         try {
             System.out.println("GET");
@@ -1192,7 +1200,7 @@ public class PlayerData {
             }
             return uid == null ? null : "https://api.gametools.network/bf2042/stats/?raw=false&format_values=true&nucleus_id=" + uid + "&platform=" + temp + "&skip_battlelog=false";
         } catch (IOException e) {
-            groupMessage.sendGroupMessage("当前ID搜索失败，请检查ID是否正确");
+            if (isTime) groupMessage.sendGroupMessage("当前ID搜索失败，请检查ID是否正确");
             return null;
         }
     }
@@ -1263,7 +1271,7 @@ public class PlayerData {
                 isOK_Graphs = true;
                 String data_origin = response.body().string();
                 JSONObject data = JSONObject.parseObject(data_origin);
-                if (data.isEmpty()) {
+                if (data.isEmpty()&&type>4) {
                     graphsIsNull = true;
                     System.out.println("该玩家未打开隐私或者并未在btr查询过");
                     if (isTime) groupMessage.sendGroupMessage("该玩家未打开隐私或者并未在btr查询过");
@@ -1655,7 +1663,6 @@ public class PlayerData {
      * 查询玩家基本数据的源程序
      */
     private void Get_BaseData(int attempts) {
-        attempts = attempts - 1;
         System.out.println(attempts);
         if (attempts < 0) {
             CapacityPool.removePlayerData(name.toLowerCase());
@@ -1706,9 +1713,9 @@ public class PlayerData {
             Response response = call.execute();
             int code = response.code();
             if (code != 200 && attempts > 0) {
-                Get_BaseData(attempts);
+                Get_BaseData(attempts-1);
                 return;
-            } else if (code != 200 && attempts == 0 && isTime) {
+            } else if ((code != 200 && attempts == 0) && isTime) {
                 groupMessage.sendGroupMessage("错误码:" + code + "| 请检查ID与平台是否正确");
                 CapacityPool.removePlayerData(name.toLowerCase());
                 return;
@@ -1754,10 +1761,10 @@ public class PlayerData {
                 thread_Graphs.start();
             });
         } catch (IOException | InterruptedException e) {
-            if (attempts == 0 && isTime) {
-                groupMessage.sendGroupMessage("链接超时");
+            if (attempts == 0) {
+                if (isTime)groupMessage.sendGroupMessage("链接超时");
                 CapacityPool.removePlayerData(name.toLowerCase());
-            } else Get_BaseData(attempts);
+            } else Get_BaseData(attempts-1);
             throw new RuntimeException(e);
         }
     }
