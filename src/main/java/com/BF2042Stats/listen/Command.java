@@ -7,10 +7,8 @@ import com.BF2042Stats.data.GroupMessage;
 import com.BF2042Stats.data.PlayerData;
 import com.BF2042Stats.data.data_enum.FactoryEnum;
 import net.mamoe.mirai.Bot;
-import net.mamoe.mirai.console.events.ConsoleEvent;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.Member;
-import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.events.*;
 import net.mamoe.mirai.message.MessageReceipt;
 import net.mamoe.mirai.message.data.At;
@@ -31,8 +29,12 @@ public class Command implements TimeCallback {
     private static final Map<Integer,MemberJoinRequestEvent> requestEventMap = new HashMap<>();
     //记录最近的消息时间，以便于阻止消息发送
     private Map<String,LocalDateTime> lastMessageTimeMap = new HashMap<>();
+    private static final Command COMMAND = new Command();
+    public static  Command getInstance(){
+        return COMMAND;
+    }
 
-    public Command() {
+    private Command() {
         for (FactoryEnum factoryEnum:FactoryEnum.values()){
             list.add(factoryEnum.toString());
         }
@@ -41,8 +43,8 @@ public class Command implements TimeCallback {
     /**
      * 监听群聊消息
      */
-    public void GroupMessage(){
-        GlobalEventChannel.INSTANCE.subscribeAlways(GroupMessageEvent.class, groupMessageEvent -> {
+    public Command GroupMessage(){
+        bot.getEventChannel().subscribeAlways(GroupMessageEvent.class, groupMessageEvent -> {
             if (!ConfigData.getGroupList().contains(String.valueOf(groupMessageEvent.getGroup().getId()))) return;
             MessageChain messageChain = groupMessageEvent.getMessage();
             if (!messageChain.contentToString().startsWith("#")) {
@@ -65,13 +67,14 @@ public class Command implements TimeCallback {
                     .append("无效命令")
                     .build());
         });
+        return this;
     }
 
     /**
      * 监听私聊消息
      */
-    public void PrivateChat(){
-        GlobalEventChannel.INSTANCE.subscribeAlways(GroupTempMessageEvent.class, groupTempMessageEvent -> {
+    public Command PrivateChat(){
+        bot.getEventChannel().subscribeAlways(GroupTempMessageEvent.class, groupTempMessageEvent -> {
             if (!ConfigData.isPrivateChatSearch()) return;
             if (!ConfigData.isGroupList(groupTempMessageEvent.getGroup().getId())) return;
             MessageChain chain = groupTempMessageEvent.getMessage();
@@ -81,13 +84,14 @@ public class Command implements TimeCallback {
             if (list.contains(temp[0].toLowerCase())) FactoryEnum.valueOf(temp[0].toLowerCase()).getInterfaceData().start(groupMessage);
             else groupMessage.sendGroupMessage("无效命令");
         });
+        return this;
     }
 
     /**
      * 处理入群请求
      */
-    public void joinGroupMessage(){
-        GlobalEventChannel.INSTANCE.subscribeAlways(MemberJoinRequestEvent.class, memberJoinRequestEvent -> {
+    public Command joinGroupMessage(){
+        bot.getEventChannel().subscribeAlways(MemberJoinRequestEvent.class, memberJoinRequestEvent -> {
             String s = memberJoinRequestEvent.getMessage().split("答案：")[1];
             if (isContainsChinese(s)){
                 Objects.requireNonNull(memberJoinRequestEvent.getGroup()).sendMessage(new MessageChainBuilder()
@@ -107,7 +111,7 @@ public class Command implements TimeCallback {
                     1), 0);
             CapacityPool.getPlayerData(memberJoinRequestEvent.getMessage(), 0).setTime(1);
         });
-        GlobalEventChannel.INSTANCE.subscribeAlways(GroupMessageEvent.class,groupMessageEvent -> {
+        bot.getEventChannel().subscribeAlways(GroupMessageEvent.class,groupMessageEvent -> {
             System.out.println(groupMessageEvent.getSource().getFromId()+"tttt");
             System.out.println(groupMessageEvent.getSource().getIds()[0]);
             if (!requestEventMap.containsKey(groupMessageEvent.getSource().getIds()[0])) return;
@@ -123,31 +127,31 @@ public class Command implements TimeCallback {
                 list.add(i);
             }
             System.out.println(list);
-//            groupMessageEvent.getGroup().sendMessage(new MessageChainBuilder()
-//                    .append(list+"")
-//                    .build());
         });
+        return this;
     }
 
     /**
      * 处理加群请求
      */
-    public void joinGroup(){
+    public Command joinGroup(){
         FriendMessage();
-        GlobalEventChannel.INSTANCE.subscribeAlways(BotInvitedJoinGroupRequestEvent.class, botInvitedJoinGroupRequestEvent -> {
+        bot.getEventChannel().subscribeAlways(BotInvitedJoinGroupRequestEvent.class, botInvitedJoinGroupRequestEvent -> {
             bot.getFriend(Long.parseLong(ConfigData.getUser())).sendMessage(new MessageChainBuilder().append("接收到加群请求,目标群聊为:").append(String.valueOf(botInvitedJoinGroupRequestEvent.getGroupId())).append("邀请人为:").append(String.valueOf(botInvitedJoinGroupRequestEvent.getInvitor().getId()))
                     .build());
         });
+        return this;
     }
-    private void  FriendMessage(){
-        GlobalEventChannel.INSTANCE.subscribeAlways(FriendMessageEvent.class, friendMessageEvent -> {
+    private Command FriendMessage(){
+        bot.getEventChannel().subscribeAlways(FriendMessageEvent.class, friendMessageEvent -> {
             if (friendMessageEvent.getFriend().getId()!=Long.parseLong(ConfigData.getUser())) {
             }
 
         });
+        return this;
     }
-    public void exitGroup(){
-        GlobalEventChannel.INSTANCE.subscribeAlways(MemberLeaveEvent.class,memberLeaveEvent -> {
+    public Command exitGroup(){
+        bot.getEventChannel().subscribeAlways(MemberLeaveEvent.class,memberLeaveEvent -> {
             Member member = memberLeaveEvent.getMember();
             if (ConfigData.isBD(member.getId())){
                 ConfigData.removeBD(member.getId());
@@ -155,9 +159,10 @@ public class Command implements TimeCallback {
                         .build());
             }
         });
+        return this;
     }
-    public void MemberJoin(){//玩家加入消息
-        GlobalEventChannel.INSTANCE.subscribeAlways(MemberJoinEvent.class, new Consumer<MemberJoinEvent>() {
+    public Command MemberJoin(){//玩家加入消息
+        bot.getEventChannel().subscribeAlways(MemberJoinEvent.class, new Consumer<MemberJoinEvent>() {
             @Override
             public void accept(MemberJoinEvent memberJoinEvent) {
                 memberJoinEvent.getGroup().sendMessage(new MessageChainBuilder()
@@ -166,6 +171,7 @@ public class Command implements TimeCallback {
                         .build());
             }
         });
+        return this;
     }
 
     public static Bot getBot() {
@@ -189,5 +195,8 @@ public class Command implements TimeCallback {
         Pattern p = Pattern.compile("[\u4e00-\u9fa5]");
         Matcher m = p.matcher(str);
         return m.find();
+    }
+    public void start(){
+
     }
 }

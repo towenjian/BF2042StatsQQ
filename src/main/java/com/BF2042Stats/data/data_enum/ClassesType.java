@@ -3,9 +3,7 @@ package com.BF2042Stats.data.data_enum;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public enum ClassesType {

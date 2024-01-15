@@ -33,15 +33,7 @@ public final class BF2042StatsV1 extends JavaPlugin {
     @Override
     public void onEnable() {
         getLogger().info("Plugin loaded!");
-        ListenQqBot listenQqBot = new ListenQqBot(this);
-        listenQqBot.BotOnline();
-        Command command = new Command();
-        command.GroupMessage();
-        command.MemberJoin();
-        command.joinGroupMessage();
-        command.PrivateChat();
-        command.exitGroup();
-        // TODO: 2023/12/9 图形化界面
+        ListenQqBot.getInstance().BotOnline();
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -53,12 +45,6 @@ public final class BF2042StatsV1 extends JavaPlugin {
                 }
             }
         });
-//        ActivityMain activityMain = ActivityMain.getInstance();
-//        try {
-//            activityMain.show();
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
     }
 
     @Override
