@@ -63,14 +63,12 @@ public class PlayerData {
     private final String name, platform;
     private final JavaPlugin javaPlugin;
     private Font mc_font;
-    // TODO: 2023/12/8 移除command？
-    private final Command command;
+    private static final String WP = "wp",VEH = "veh",CL = "cl";
     private final long userID;
     private final Timer timer = new Timer();
     private final Bot bot;
     private final int type;
     private final Map<Integer, String> Mapping_table = new LinkedHashMap<>();
-    private final List<Integer> list_origin = new ArrayList<>();
     private JSONObject jsonObject, KillsJson, KsJson;
     private JSONArray classes, weapons, veh, wp_group_array, veh_group_array;
     private boolean isTime = true;
@@ -92,7 +90,7 @@ public class PlayerData {
         this.name = name;
         this.platform = platform;
         this.javaPlugin = groupMessage.getJavaPlugin();
-        this.command = groupMessage.getCommand();
+        // TODO: 2023/12/8 移除command？
         this.userID = groupMessage.getUser();
         Get();
         InputStream fontFile = getClass().getClassLoader().getResourceAsStream("AL.ttf");
@@ -917,6 +915,15 @@ public class PlayerData {
         System.out.println("该任务" + (timer.purge() == 0 ? "已经被停止" : "还在运行"));
     }
 
+    /**
+     * 用于获取链接的图片对于武器等的图片链接
+     * @param type 该链接的所属的类型，比如是武器链接则为wp，载具则为veh，专家则为cl
+     * @param s 链接
+     * @param w 返回的图片的宽度
+     * @param h 返回的图片的高度
+     * @return 返回图片的BufferedImage方便处理
+     * @throws IOException 可能抛出IO异常
+     */
     private BufferedImage returnBufferedImage(String type, String s, int w, int h) throws IOException {
         if (s == null || s.isEmpty())
             return Thumbnails.of(new URL("https://moe.jitsu.top/img/?sort=1080p&size=mw1920")).size(w, h).asBufferedImage();
@@ -924,7 +931,14 @@ public class PlayerData {
             return Thumbnails.of(new URL("https://moe.jitsu.top/img/?sort=1080p&size=mw1920")).size(w, h).asBufferedImage();
         return Thumbnails.of(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(type + "/" + s.split("/")[s.split("/").length - 1]))).size(w, h).asBufferedImage();
     }
-
+    /**
+     * 用于获取链接的图片对于武器等的图片链接
+     * @param type 该链接的所属的类型，比如是武器链接则为wp，载具则为veh，专家则为cl
+     * @param s 链接
+     * @param h 返回的图片的高度
+     * @return 返回图片的BufferedImage方便处理
+     * @throws IOException 可能抛出IO异常
+     */
     private BufferedImage returnBufferedImage(String type, String s, int h) throws IOException {
         if (s == null || s.isEmpty())
             return Thumbnails.of(new URL("https://moe.jitsu.top/img/?sort=1080p&size=mw1920")).height(h).asBufferedImage();
@@ -972,196 +986,6 @@ public class PlayerData {
         if (s == null) return "null";//解决空字符问题
         return s.length() < 10 ? s : s.substring(0, 10) + "...";
     }
-
-    /**
-     * 查询玩家数据的源程序(已经废弃)
-     */
-    @Deprecated
-    private void Get_origin() {
-        try {
-            System.out.println("GET");
-            //准备工作
-            OkHttpClient planGet = new OkHttpClient.Builder()
-                    .writeTimeout(10, TimeUnit.SECONDS)
-                    .readTimeout(10, TimeUnit.SECONDS)
-                    .connectTimeout(10, TimeUnit.SECONDS)
-                    .build();
-            String planUrl = "https://api.gametools.network/bfglobal/games?name=" + name + "&platform=" + platform + "&";
-            Request planRequest = new Request.Builder()
-                    .get()
-                    .url(planUrl)
-                    .build();
-            Call planCall = planGet.newCall(planRequest);
-            Response planResponse = planCall.execute();
-            int planCode = planResponse.code();
-            if (planCode == 200) {
-                JSONObject planJson = JSONObject.parseObject(planResponse.body().string());
-                System.out.println("plan is ok");
-                Thread.sleep(1000);
-            }
-
-
-            //
-            OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                    .writeTimeout(10, TimeUnit.SECONDS)
-                    .readTimeout(10, TimeUnit.SECONDS)
-                    .connectTimeout(10, TimeUnit.SECONDS)
-                    .build();
-            //先抓https://api.gametools.network/bfglobal/games?name=geyanghuayi&platform=pc&，后面就能正常获取数据
-            //https://api.gametools.network/bf2042/stats/?raw=false&format_values=true&nucleus_id=1005954469103&platform=pc&skip_battlelog=false
-            //https://api.gametools.network/bf2042/all/?format_values=false&lang=zh-tw&platform=pc&name=hhhh6448&
-            //"https://api.gametools.network/bf2042/stats/?raw=false&format_values=true&name="+name+"&platform="+platform+"&skip_battlelog=false"
-            String url = (getThread_frequency == 5 ? getIDUrl() : "https://api.gametools.network/bf2042/all/?format_values=false&lang=zh-tw&platform=" + platform + "&name=" + name + "&");
-//            String url2 = "https://api.gametools.network/bf2042/stats/?raw=false&format_values=true&nucleus_id=1005954469103&platform=pc&skip_battlelog=false";
-            if (url == null) {
-                if (isTime) groupMessage.sendGroupMessage("当前ID搜索失败");
-                CapacityPool.removePlayerData(name);
-                return;
-            }
-            Request request = new Request.Builder()
-                    .url(url)
-                    .get().build();
-            Call call = okHttpClient.newCall(request);
-            Response response = call.execute();
-            int code = response.code();
-            if (code != 200) {
-                if (getThread_frequency < 6) {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            getThread_frequency++;
-                            thread.interrupt();
-                            thread = new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Get_origin();
-                                }
-                            });
-                            thread.start();
-                        }
-                    });
-                }
-                if (getThread_frequency >= 6) {
-                    if (isTime) groupMessage.sendGroupMessage("查询失败,错误码为:" + code + "|请检查ID与平台是否正确");
-                    else System.out.println("查询失败，错误码为:" + code);
-                    CapacityPool.removePlayerData(name);
-                    getThread_frequency++;
-                }
-                System.out.println("错误码：" + code);
-                return;
-            }
-            try {
-                jsonObject = JSONObject.parseObject(response.body().string());
-            } catch (IOException e) {
-                if (getThread_frequency < 5) {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            getThread_frequency++;
-                            thread.interrupt();
-                            thread = new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Get_origin();
-                                }
-                            });
-                            thread.start();
-                        }
-                    });
-                }
-                if (getThread_frequency >= 6) {
-                    if (isTime) groupMessage.sendGroupMessage("查询失败,错误码为:" + code + "|请检查ID与平台是否正确");
-                    else System.out.println("查询失败，错误码为:" + code);
-                    CapacityPool.removePlayerData(name);
-                    getThread_frequency++;
-                }
-                throw new RuntimeException(e);
-            }
-            jsonObject.put("human", jsonObject.getJSONObject("dividedKills").get("human"));
-            jsonObject.put("melee", jsonObject.getJSONObject("dividedKills").get("melee"));
-            String str = jsonObject.getString("timePlayed");
-            String time1 = "null";
-            if (str.indexOf("days") != -1) {
-                int D = Integer.parseInt(str.substring(0, str.indexOf(" days,")));
-                int H = Integer.parseInt(str.substring(str.indexOf(", ") + 2, str.indexOf(":")));
-                String m = str.substring(str.indexOf(":") + 1);
-                int M = Integer.parseInt(m.substring(0, m.indexOf(":")));
-                time1 = String.valueOf(M >= 30 ? D * 24 + H + 1 : D * 24 + H);
-            } else if (str.indexOf("day") != -1) {
-                int D = Integer.parseInt(str.substring(0, str.indexOf(" day,")));
-                int H = Integer.parseInt(str.substring(str.indexOf(", ") + 2, str.indexOf(":")));
-                String m = str.substring(str.indexOf(":") + 1);
-                int M = Integer.parseInt(m.substring(0, m.indexOf(":")));
-                time1 = String.valueOf(M >= 30 ? D * 24 + H + 1 : D * 24 + H);
-            } else {
-                int H = Integer.parseInt(str.substring(0, str.indexOf(":")));
-                String m = str.substring(str.indexOf(":") + 1);
-                int M = Integer.parseInt(m.substring(0, m.indexOf(":")));
-                time1 = String.valueOf(M >= 30 ? H + 1 : H);
-            }
-            jsonObject.put("time", time1);
-            double min = Integer.parseInt(time1) * 60;
-            min = jsonObject.getDoubleValue("human") / min;
-            BigDecimal bi = new BigDecimal(min);
-            min = bi.setScale(2, RoundingMode.HALF_UP).doubleValue();
-            jsonObject.put("inkpm", min);
-            classes = JsonSort(jsonObject.getJSONArray("classes"));
-            jsonObject.remove("classes");
-            weapons = JsonSort(jsonObject.getJSONArray("weapons"));
-            jsonObject.remove("weapons");
-            veh = JsonSort(jsonObject.getJSONArray("vehicles"));
-            jsonObject.remove("vehicles");
-            wp_group_array = jsonObject.getJSONArray("weaponGroups");
-            jsonObject.remove("weaponGroups");
-            veh_group_array = jsonObject.getJSONArray("vehicleGroups");
-            jsonObject.remove("vehicleGroups");
-            getThread_frequency = 5;
-            System.out.println("GET over");
-            System.out.println(jsonObject);
-            cheatCheat = new CheatCheat(jsonObject, weapons);
-            if (isTime && type <= 4) {
-                selectMessage(type);
-            }
-            //查找Kill数据,仅当基本数据查找成功后才会搜索
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    thread_Graphs = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Get_Graphs();
-                        }
-                    });
-                    thread_Graphs.start();
-                }
-            });
-        } catch (Exception e) {
-            if (getThread_frequency < 5) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        getThread_frequency++;
-                        thread.interrupt();
-                        thread = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Get_origin();
-                            }
-                        });
-                        thread.start();
-                    }
-                });
-            }
-            if (getThread_frequency >= 5) {
-                if (isTime) groupMessage.sendGroupMessage("链接超时,请检查ID与平台是否正确");
-                else System.out.println("链接超时");
-                getThread_frequency++;
-                CapacityPool.removePlayerData(name);
-            }
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
      * 因为有时候玩家的数据并不能通过name直接获取，所以该函数会通过name获取数字ID再返回新的url
      *
@@ -1307,107 +1131,6 @@ public class PlayerData {
     }
 
     /**
-     * 对于数据类的快速返回对应的值
-     *
-     * @param s 状态图类的时间数据
-     * @return 返回时间的最终大小
-     */
-   public double num(String s) {
-        // 将字符串s按照T分割
-        String[] temp = s.split("T");
-        // 将temp[0]按照-分割，temp[1]按照:分割
-        String[] temp_l = temp[0].split("-"), temp_r = temp[1].split(":");
-        // 将temp_l[0]、temp_l[1]、temp_l[2]、temp_r[0]、temp_r[1]拼接，并转换为double类型
-        double i = Double.parseDouble(temp_l[0] + temp_l[1] + temp_l[2] + temp_r[0] + temp_r[1]);
-        // 返回拼接后的double类型
-        return i;
-    }
-
-    private BufferedImage Generate_Graph(JSONArray array, TextData textData) {
-        DefaultCategoryDataset dataset1 = new DefaultCategoryDataset();
-        double min = 100, max = 0;
-        for (int i = 0; i < list_origin.size(); i++) {
-            dataset1.addValue(array.getDoubleValue(list_origin.get(i)), textData.getS1(), Mapping_table.get(i));
-            max = Math.max(max, array.getDoubleValue(i));
-            min = Math.min(min, array.getDoubleValue(i));
-        }
-        System.out.println(max);
-        System.out.println(min);
-        JFreeChart chart = ChartFactory.createLineChart(
-                name + textData.getS1(),
-                textData.getS2(),
-                textData.getS3(),
-                dataset1,
-                PlotOrientation.VERTICAL,
-                true,
-                true,
-                false
-        );
-        chart.setBackgroundPaint(new Color(255, 255, 255, 50));
-        CategoryPlot plot = chart.getCategoryPlot();
-        setChart(plot, max, min);
-        System.out.println(name + textData.getS1() + "over");
-        return chart.createBufferedImage(Math.min(list_origin.size() * 100, 1600), 300);
-    }
-
-    private BufferedImage Generate_Graph(JSONArray array, TextData textData, int height) {
-        DefaultCategoryDataset dataset1 = new DefaultCategoryDataset();
-        double min = 100, max = 0;
-        for (int i = 0; i < list_origin.size(); i++) {
-            dataset1.addValue(array.getDoubleValue(list_origin.get(i)), textData.getS1(), Mapping_table.get(i));
-            max = Math.max(max, array.getDoubleValue(i));
-            min = Math.min(min, array.getDoubleValue(i));
-        }
-        System.out.println(max);
-        System.out.println(min);
-        JFreeChart chart = ChartFactory.createLineChart(
-                name + textData.getS1(),
-                textData.getS2(),
-                textData.getS3(),
-                dataset1,
-                PlotOrientation.VERTICAL,
-                true,
-                true,
-                false
-        );
-        chart.setBackgroundPaint(new Color(255, 255, 255, 50));
-        CategoryPlot plot = chart.getCategoryPlot();
-        setChart(plot, max, min);
-        System.out.println(name + textData.getS1() + "over");
-        return chart.createBufferedImage(Math.min(list_origin.size() * 100, 1600), height);
-    }
-
-    /**
-     * 用于快速生成图标的属性的方法
-     *
-     * @param max 最大的数据量
-     * @param min 最小的数据量
-     */
-    private void setChart(CategoryPlot plot, Double max, Double min) {
-        NumberAxis numberAxis = (NumberAxis) plot.getRangeAxis();
-        numberAxis.setRange(min, max);
-        numberAxis.setTickLabelPaint(Color.BLACK);
-        numberAxis.setLabelPaint(Color.BLACK);
-        numberAxis.setAxisLinePaint(Color.BLACK);
-        CategoryAxis axis = plot.getDomainAxis();
-        axis.setTickLabelPaint(Color.BLACK);
-        axis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
-//        axis.setMaximumCategoryLabelLines(0);
-        axis.setLabelPaint(Color.BLACK);//days
-        axis.setAxisLinePaint(Color.BLACK);
-        LineAndShapeRenderer renderer = new LineAndShapeRenderer();
-        //
-
-//        renderer.setSeriesPaint(0, Color.RED);  // 曲线颜色
-        renderer.setSeriesPaint(0, Color.RED);
-        renderer.setSeriesPaint(1, Color.GREEN);
-        renderer.setSeriesShapesVisible(0, true);  // 显示标记点
-        renderer.setSeriesLinesVisible(0, true);  // 显示曲线
-        renderer.setDefaultLinesVisible(true);
-        plot.setRenderer(renderer);
-    }
-
-    /**
      * 用来快速画出武器数据图表
      *
      * @param g2d        g2d对象
@@ -1418,7 +1141,7 @@ public class PlayerData {
     private void writeWpImg(Graphics2D g2d, int x, int y, JSONObject jsonObject) throws IOException {
         g2d.setFont(g2d.getFont().deriveFont(25f));
         g2d.setColor(Color.WHITE);
-        g2d.drawImage(returnBufferedImage("wp", jsonObject.getString("image"), 100), null, x, y);
+        g2d.drawImage(returnBufferedImage(WP, jsonObject.getString("image"), 100), null, x, y);
         g2d.drawString(ShortCharacters(jsonObject.getString("weaponName")), x + 210, y + 35);
         g2d.drawString("\u51fb\u6740\u6570:" + jsonObject.getString("kills"), x + 210, y + 85);
         g2d.drawString("\u547d\u4e2d\u7387:" + jsonObject.getString("accuracy"), x + 420, y + 35);
@@ -1446,7 +1169,7 @@ public class PlayerData {
     private void writeVhImg(Graphics2D g2d, int x, int y, JSONObject jsonObject) throws IOException {
         g2d.setColor(Color.WHITE);
         g2d.setFont(g2d.getFont().deriveFont(25f));
-        BufferedImage bufferedImage = returnBufferedImage("veh", jsonObject.getString("image"), 75);
+        BufferedImage bufferedImage = returnBufferedImage(VEH, jsonObject.getString("image"), 75);
         int w = bufferedImage.getWidth();
         g2d.drawImage(bufferedImage, null, w < 300 ? x + 75 : x, y + 13);
         g2d.drawString(ShortCharacters(jsonObject.getString("vehicleName")), x + 300, y + 35);
@@ -1476,7 +1199,7 @@ public class PlayerData {
     private void writeClImg(Graphics2D g2d, int x, int y, JSONObject jsonObject) throws IOException {
         g2d.setFont(g2d.getFont().deriveFont(20f));
         g2d.setColor(Color.WHITE);
-        g2d.drawImage(returnBufferedImage("cl", jsonObject.getJSONObject("avatarImages").getString("us"), 120), null, x, y);
+        g2d.drawImage(returnBufferedImage(CL, jsonObject.getJSONObject("avatarImages").getString("us"), 120), null, x, y);
         g2d.setColor(ClassesType.valueOf(jsonObject.getString("className").replace("-", "")).getColor());
         g2d.fillRoundRect(x + 105, y, 50 + ClassesType.valueOf(jsonObject.getString("className").replace("-", "")).getS1().length() * 25, 40, 10, 10);
         g2d.setColor(Color.WHITE);

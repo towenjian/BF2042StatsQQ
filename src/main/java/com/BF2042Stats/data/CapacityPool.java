@@ -15,8 +15,7 @@ public class CapacityPool {
             }
             return size() > ConfigData.getTempPlayer();
         }
-    };//群内绑定玩家数据（数量不做限制，仅24小时限制）
-    private static final Map<String,String> user_gameID = new HashMap<>();
+    };
 
     /**
      * 新增player玩家类
