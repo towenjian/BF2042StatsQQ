@@ -5,9 +5,7 @@ import com.BF2042Stats.data.data_enum.Classes;
 import com.BF2042Stats.data.data_enum.ClassesType;
 import com.BF2042Stats.data.data_enum.StateCenter;
 import com.BF2042Stats.data.data_interface.GetType;
-import com.BF2042Stats.listen.Command;
 import com.BF2042Stats.textenum.PostionEnum;
-import com.BF2042Stats.textenum.TextData;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import net.coobird.thumbnailator.Thumbnails;
@@ -29,13 +27,11 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -48,7 +44,6 @@ import java.math.RoundingMode;
 import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Timer;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -1095,10 +1090,12 @@ public class PlayerData {
                 isOK_Graphs = true;
                 String data_origin = response.body().string();
                 JSONObject data = JSONObject.parseObject(data_origin);
-                if (data.isEmpty()&&type>4) {
+                if (data.isEmpty()){
                     graphsIsNull = true;
-                    System.out.println("该玩家未打开隐私或者并未在btr查询过");
-                    if (isTime) groupMessage.sendGroupMessage("该玩家未打开隐私或者并未在btr查询过");
+                    if (type>4) {
+                        if (isTime) groupMessage.sendGroupMessage("该玩家未打开隐私或者并未在btr查询过");
+                        System.out.println("该玩家未打开隐私或者并未在btr查询过");
+                    }
                     return;
                 }
                 data = data.getJSONObject("data").getJSONObject("series");
