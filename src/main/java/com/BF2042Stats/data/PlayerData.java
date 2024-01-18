@@ -46,6 +46,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Timer;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class PlayerData {
@@ -223,9 +224,29 @@ public class PlayerData {
         //武器和载具图
         g2d.setColor(Color.WHITE);
         g2d.setFont(mc_font.deriveFont(20f));
+        CountDownLatch count = new CountDownLatch(18);
         for (int i = 0; i < 18; i++) {
-            writeVhImg(g2d, 950, 1200 + i * 110, veh.getJSONObject(i));
-            writeWpImg(g2d, 35, 1200 + i * 110, weapons.getJSONObject(i));
+            final int f = i;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Graphics2D graphics2D = image.createGraphics();
+                    graphics2D.setFont(mc_font);
+                    try {
+                        writeVhImg(graphics2D, 950, 1200 + f * 110, veh.getJSONObject(f));
+                        writeWpImg(graphics2D, 35, 1200 + f * 110, weapons.getJSONObject(f));
+                        graphics2D.dispose();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    count.countDown();
+                }
+            }).start();
+        }
+        try {
+            count.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
         g2d.dispose();
         ImageIO.write(image, "png", img_file);
@@ -937,11 +958,12 @@ public class PlayerData {
     private BufferedImage returnBufferedImage(String type, String s, int h) throws IOException {
         if (s == null || s.isEmpty())
             return Thumbnails.of(new URL("https://moe.jitsu.top/img/?sort=1080p&size=mw1920")).height(h).asBufferedImage();
-        File file = new File(javaPlugin.getDataFolder() + "/" + type, s.split("/")[s.split("/").length - 1]);
-        if (file.exists()) return Thumbnails.of(file).height(h).asBufferedImage();
-        else
-            Thumbnails.of(new URL(s)).height(100).toFile(new File(javaPlugin.getDataFolder() + "/" + type, s.split("/")[s.split("/").length - 1]));
-        return Thumbnails.of(new URL("https://moe.jitsu.top/img/?sort=1080p&size=mw1920")).height(h).asBufferedImage();
+//        File file = new File(javaPlugin.getDataFolder() + "/" + type, s.split("/")[s.split("/").length - 1]);
+//        if (file.exists()) return Thumbnails.of(file).height(h).asBufferedImage();
+        if (ImgData.getInstance().getImg(type,s.split("/")[s.split("/").length - 1])!=null) return Thumbnails.of(ImgData.getInstance().getImg(type,s.split("/")[s.split("/").length - 1])).height(h).asBufferedImage();
+        else ImgData.getInstance().setImg(type,s.split("/")[s.split("/").length - 1], Thumbnails.of(new URL(s)).height(h).asBufferedImage());
+        Thumbnails.of(new URL(s)).height(100).toFile(new File(javaPlugin.getDataFolder() + "/" + type, s.split("/")[s.split("/").length - 1]));
+        return Thumbnails.of(ImgData.getInstance().getImg(type,s.split("/")[s.split("/").length - 1])).height(h).asBufferedImage();
     }
 
     public String getName() {
