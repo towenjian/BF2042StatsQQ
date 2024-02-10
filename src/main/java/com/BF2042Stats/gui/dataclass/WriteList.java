@@ -1,7 +1,8 @@
 package com.BF2042Stats.gui.dataclass;
 
 public class WriteList {
-    private String s1,message;
+    private final String s1;
+    private final String message;
     public WriteList(String s1,String message){
         this.s1 = s1;
         this.message = message;

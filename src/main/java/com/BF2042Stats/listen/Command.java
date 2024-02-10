@@ -28,7 +28,7 @@ public class Command implements TimeCallback {
     private static final List<String> list = new ArrayList<>();
     private static final Map<Integer,MemberJoinRequestEvent> requestEventMap = new HashMap<>();
     //记录最近的消息时间，以便于阻止消息发送
-    private Map<String,LocalDateTime> lastMessageTimeMap = new HashMap<>();
+    private final Map<String,LocalDateTime> lastMessageTimeMap = new HashMap<>();
     private static final Command COMMAND = new Command();
     public static  Command getInstance(){
         return COMMAND;
@@ -108,8 +108,7 @@ public class Command implements TimeCallback {
                     groupMessage,
                     s,
                     "pc",
-                    1), 0);
-            CapacityPool.getPlayerData(memberJoinRequestEvent.getMessage(), 0).setTime(1);
+                    1), 0).setTime(1);
         });
         bot.getEventChannel().subscribeAlways(GroupMessageEvent.class,groupMessageEvent -> {
             System.out.println(groupMessageEvent.getSource().getFromId()+"tttt");
@@ -120,7 +119,7 @@ public class Command implements TimeCallback {
                 return;
             }
             groupMessageEvent.getGroup().sendMessage(new MessageChainBuilder()
-                    .append(groupMessageEvent.getSource().getIds().length+"")
+                    .append(String.valueOf(groupMessageEvent.getSource().getIds().length))
                     .build());
             List<Integer> list = new ArrayList<>();
             for (int i : groupMessageEvent.getSource().getIds()){

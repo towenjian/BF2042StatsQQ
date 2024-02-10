@@ -16,8 +16,8 @@ public class AcvtivityCustomResults {
     private JTextField text_name;
     private JTextField text_message;
     private JButton btn_updata;
-    private DefaultListModel<WriteList> model = new DefaultListModel<>();
-    private Font font = ActivityMain.getInstance().getFont().deriveFont(12f);
+    private final DefaultListModel<WriteList> model = new DefaultListModel<>();
+    private final Font font = ActivityMain.getInstance().getFont().deriveFont(12f);
 
     public AcvtivityCustomResults() {
         init();

@@ -24,7 +24,7 @@ public class CheatCheat {
     * 按照命中率进行判定--待定
     * */
     private final JSONObject jsonObject;
-    private JSONArray wp_array;
+    private final JSONArray wp_array;
     private String reason;
     /*
     * isHacker 如果为真则实锤为挂

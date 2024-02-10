@@ -16,10 +16,10 @@ public class ActivityBD {
     private JList<WriteList> list_bd;
     private JList<String> list_cap_bd;
     private JList<String> list_cap_nbd;
-    private DefaultListModel<WriteList> model_bd = new DefaultListModel<>();
-    private DefaultListModel<String> model_cap_bd = new DefaultListModel<>();
-    private DefaultListModel<String> model_cap_nbd = new DefaultListModel<>();
-    private Font font = ActivityMain.getInstance().getFont().deriveFont(12f);
+    private final DefaultListModel<WriteList> model_bd = new DefaultListModel<>();
+    private final DefaultListModel<String> model_cap_bd = new DefaultListModel<>();
+    private final DefaultListModel<String> model_cap_nbd = new DefaultListModel<>();
+    private final Font font = ActivityMain.getInstance().getFont().deriveFont(12f);
 
     public ActivityBD() {
         init();

@@ -40,7 +40,7 @@ public class ConfigActivity {
     private JButton btn_customResults;
     //
     private Font font;
-    private JFrame jFrame;
+    private final JFrame jFrame;
 
     public ConfigActivity(JFrame jFrame) {
         bind();

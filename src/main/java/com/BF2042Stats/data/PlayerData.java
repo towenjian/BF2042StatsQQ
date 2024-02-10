@@ -46,8 +46,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Timer;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class PlayerData {
     /*
@@ -55,33 +54,58 @@ public class PlayerData {
      *
      * */
     // TODO: 2023/12/8 将线程方式改为线程池处理，减少系统资源占用 
-    // TODO: 2023/12/8 移除多余的指令工厂 
+    // TODO: 2023/12/8 移除多余的指令工厂
+    private static final ExecutorService service = Executors.newCachedThreadPool();
+    private static final String WP = "wp",VEH = "veh",CL = "cl";
     private final String name, platform;
     private final JavaPlugin javaPlugin;
-    private Font mc_font;
-    private static final String WP = "wp",VEH = "veh",CL = "cl";
     private final long userID;
     private final Timer timer = new Timer();
-    private final Bot bot;
     private final int type;
     private final Map<Integer, String> Mapping_table = new LinkedHashMap<>();
+    private final boolean isUpData = false;
+    private final Map<String,LocalDateTime> localDateTimeMap = new HashMap<>();
+    private Font mc_font;
     private JSONObject jsonObject, KillsJson, KsJson;
     private JSONArray classes, weapons, veh, wp_group_array, veh_group_array;
     private boolean isTime = true;
     private boolean isOK_Graphs = false, graphsIsNull = false;
-    private boolean isUpData = false;
-    private Thread veh_T, wp_T, thread, imgTread, thread_Graphs, kd_T, kpm_T, st_T, cl_T;
+    private boolean isCxOver = true;
+    private boolean isWpOver = true;
+    private boolean isVehOver = true;
+    private boolean isClOver = true;
+    private boolean isKillOver = true;
+    private boolean isKdOver = true;
+    private Thread  thread_Graphs;
     private GroupMessage groupMessage;
     private int time = 2;
     private int TimeMember = 0;
     private int getThread_frequency = 0;
     private int getThread_Graphs = 0;
     private CheatCheat cheatCheat;
-    private final Map<String,LocalDateTime> localDateTimeMap = new HashMap<>();
 
     public PlayerData(GroupMessage groupMessage, String name, String platform, int type) {
         this.type = type;
-        this.bot = groupMessage.getBot();
+        switch (type) {
+            case GetType.CX:
+                isCxOver = false;
+                break;
+            case GetType.WP:
+                isWpOver = false;
+                break;
+            case GetType.VH:
+                isVehOver = false;
+                break;
+            case GetType.KD:
+                isKdOver = false;
+                break;
+            case GetType.KILL:
+                isKillOver = false;
+                break;
+            case GetType.CL:
+                isClOver= false;
+                break;
+        }
         this.groupMessage = groupMessage;
         this.name = name;
         this.platform = platform;
@@ -100,8 +124,9 @@ public class PlayerData {
     }
 
     private void Get() {
-        thread = new Thread(() -> Get_BaseData(5));
-        thread.start();
+        service.submit(() -> Get_BaseData(5));
+//        thread = new Thread(() -> Get_BaseData(5));
+//        thread.start();
     }
 
     private void TextMessage() {
@@ -112,7 +137,8 @@ public class PlayerData {
             if (duration.toHours()<1) return;
         }
         localDateTimeMap.put(String.valueOf(groupMessage.getGroup().getId()), LocalDateTime.now());
-        String replyMessage = "游戏ID:" + jsonObject.getString("userName") + "\n" +
+        String replyMessage = "json处理异常";
+        if (jsonObject!=null) replyMessage = "游戏ID:" + jsonObject.getString("userName") + "\n" +
                 "游戏时长:" + jsonObject.getString("time") + "h" + "\n" +
                 "MVP数:" + jsonObject.getString("mvp") + "\n" +
                 "鸡杀数:" + jsonObject.getString("kills") + "\n" +
@@ -145,21 +171,25 @@ public class PlayerData {
                 System.out.println(name + "的cx图片被删除");
             }
         }
-        imgTread = new Thread(() -> {
+        if (!isCxOver){
+            groupMessage.sendGroupMessage("当前任务正在运行，请耐心等待");
+            return;
+        }
+        isCxOver = false;
+        service.submit(() ->{
             try {
                 ImgMessage(groupMessage);
             } catch (IOException e) {
+                isCxOver = true;
                 try {
                     ImgMessage(groupMessage);
                 } catch (IOException ex) {
                     groupMessage.sendGroupMessage("生成失败");
-                    System.out.println(ex.getCause().toString());
                     throw new RuntimeException(ex);
                 }
                 throw new RuntimeException(e);
             }
         });
-        imgTread.start();
     }
 
     private void ImgMessage(GroupMessage groupMessage) throws IOException {
@@ -250,6 +280,7 @@ public class PlayerData {
         }
         g2d.dispose();
         ImageIO.write(image, "png", img_file);
+        isCxOver = true;
         System.out.println("over");
         ExternalResource resource = ExternalResource.create(img_file);
         Image image1 = groupMessage.getGroup().uploadImage(resource);
@@ -310,24 +341,44 @@ public class PlayerData {
                 System.out.println(name + "的wp图片被删除");
             }
         }
-        wp_T = new Thread(new Runnable() {
-            @Override
-            public void run() {
+//        wp_T = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    WP(groupMessage);
+//                } catch (IOException e) {
+//                    try {
+//                        WP(groupMessage);
+//                    } catch (IOException ex) {
+//                        groupMessage.sendGroupMessage("生成失败,请联系管理员查找错误");
+//                        System.out.println(ex.getCause().toString());
+//                        throw new RuntimeException(ex);
+//                    }
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//        });
+//        wp_T.start();
+        if (!isWpOver){
+            groupMessage.sendGroupMessage("当前任务正在运行，请耐心等待");
+            return;
+        }
+        isWpOver = false;
+        service.submit(() -> {
+            try {
+                WP(groupMessage);
+            } catch (IOException e) {
+                isWpOver = true;
                 try {
                     WP(groupMessage);
-                } catch (IOException e) {
-                    try {
-                        WP(groupMessage);
-                    } catch (IOException ex) {
-                        groupMessage.sendGroupMessage("生成失败,请联系管理员查找错误");
-                        System.out.println(ex.getCause().toString());
-                        throw new RuntimeException(ex);
-                    }
-                    throw new RuntimeException(e);
+                } catch (IOException ex) {
+                    groupMessage.sendGroupMessage("生成失败,请联系管理员查找错误");
+                    System.out.println(ex.getCause().toString());
+                    throw new RuntimeException(ex);
                 }
+                throw new RuntimeException(e);
             }
         });
-        wp_T.start();
     }
 
     private void WP(GroupMessage groupMessage) throws IOException {
@@ -415,6 +466,7 @@ public class PlayerData {
         }
         g2d.dispose();
         ImageIO.write(image, "png", img_file);
+        isWpOver = true;
         System.out.println("over");
         ExternalResource resource = ExternalResource.create(img_file);
         Image image_temp = groupMessage.getGroup().uploadImage(resource);
@@ -440,24 +492,44 @@ public class PlayerData {
                 System.out.println(name + "的veh图片被删除");
             }
         }
-        veh_T = new Thread(new Runnable() {
-            @Override
-            public void run() {
+//        veh_T = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    VEH(groupMessage);
+//                } catch (IOException e) {
+//                    try {
+//                        VEH(groupMessage);
+//                    } catch (IOException ex) {
+//                        groupMessage.sendGroupMessage("生成失败,请联系管理员查找错误");
+//                        System.out.println(ex.getCause().toString());
+//                        throw new RuntimeException(ex);
+//                    }
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//        });
+//        veh_T.start();
+        if (!isVehOver){
+            groupMessage.sendGroupMessage("当前任务正在运行，请耐心等待");
+            return;
+        }
+        isVehOver = false;
+        service.submit(()->{
+            try {
+                VEH(groupMessage);
+            } catch (IOException e) {
+                isVehOver = true;
                 try {
                     VEH(groupMessage);
-                } catch (IOException e) {
-                    try {
-                        VEH(groupMessage);
-                    } catch (IOException ex) {
-                        groupMessage.sendGroupMessage("生成失败,请联系管理员查找错误");
-                        System.out.println(ex.getCause().toString());
-                        throw new RuntimeException(ex);
-                    }
-                    throw new RuntimeException(e);
+                } catch (IOException ex) {
+                    groupMessage.sendGroupMessage("生成失败,请联系管理员查找错误");
+                    System.out.println(ex.getCause().toString());
+                    throw new RuntimeException(ex);
                 }
+                throw new RuntimeException(e);
             }
         });
-        veh_T.start();
     }
 
     private void VEH(GroupMessage groupMessage) throws IOException {
@@ -570,6 +642,7 @@ public class PlayerData {
         }
         g2d.dispose();
         ImageIO.write(image, "png", img_file);
+        isVehOver = true;
         System.out.println("over");
         ExternalResource resource = ExternalResource.create(img_file);
         Image image_temp = groupMessage.getGroup().uploadImage(resource);
@@ -587,17 +660,30 @@ public class PlayerData {
     public void CLImg(GroupMessage groupMessage) {
         File file = new File(javaPlugin.getDataFolder(), name + "-cl.png");
         if (file.exists()) file.delete();
-        cl_T = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    CL(groupMessage);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+//        cl_T = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    CL(groupMessage);
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//        });
+//        cl_T.start();
+        if (!isClOver){
+            groupMessage.sendGroupMessage("当前任务正在运行，请耐心等待");
+            return;
+        }
+        isClOver = false;
+        service.submit(()->{
+            try {
+                CL(groupMessage);
+            } catch (IOException e) {
+                isClOver = true;
+                throw new RuntimeException(e);
             }
         });
-        cl_T.start();
     }
 
     private void CL(GroupMessage groupMessage) throws IOException {
@@ -671,6 +757,7 @@ public class PlayerData {
             }
         }
         g2d.dispose();
+        isClOver = true;
         ImageIO.write(image, "png", file);
         ExternalResource resource = ExternalResource.create(file);
         Image image1 = groupMessage.getGroup().uploadImage(resource);
@@ -694,17 +781,30 @@ public class PlayerData {
                 System.out.println(name + "的kd图片被删除");
             }
         }
-        kd_T = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    KD(groupMessage);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+//        kd_T = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    KD(groupMessage);
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//        });
+//        kd_T.start();
+        if (!isKdOver){
+            groupMessage.sendGroupMessage("当前任务正在运行，请耐心等待");
+            return;
+        }
+        isKdOver = false;
+        service.submit(()->{
+            try {
+                KD(groupMessage);
+            } catch (IOException e) {
+                isKdOver = true;
+                throw new RuntimeException(e);
             }
         });
-        kd_T.start();
     }
 
     private void KD(GroupMessage groupMessage) throws IOException {
@@ -769,6 +869,7 @@ public class PlayerData {
             }
         }
         g2d.dispose();
+        isKdOver = true;
         ImageIO.write(image, "png", file);
         ExternalResource resource = ExternalResource.create(file);
         Image image1 = groupMessage.getGroup().uploadImage(resource);
@@ -788,17 +889,30 @@ public class PlayerData {
                 System.out.println(name + "的kpm图片被删除");
             }
         }
-        kpm_T = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Kill(groupMessage);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+//        kpm_T = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    Kill(groupMessage);
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//        });
+//        kpm_T.start();
+        if (!isKillOver){
+            groupMessage.sendGroupMessage("当前任务正在运行，请耐心等待");
+            return;
+        }
+        isKillOver = false;
+        service.submit(()->{
+            try {
+                Kill(groupMessage);
+            } catch (IOException e) {
+                isKillOver = true;
+                throw new RuntimeException(e);
             }
         });
-        kpm_T.start();
     }
 
     private void Kill(GroupMessage groupMessage) throws IOException {
@@ -855,6 +969,7 @@ public class PlayerData {
             }
         }
         g2d.dispose();
+        isKillOver = true;
         ImageIO.write(image, "png", file);
         ExternalResource resource = ExternalResource.create(file);
         Image image1 = groupMessage.getGroup().uploadImage(resource);
@@ -870,20 +985,10 @@ public class PlayerData {
                 System.out.println(name + "的st图片被删除");
             }
         }
-        st_T = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    ST(groupMessage);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-        st_T.start();
+        groupMessage.sendGroupMessage("失效方法");
     }
 
-    private void ST(GroupMessage groupMessage) throws IOException {
+    private void ST(GroupMessage groupMessage) {
         this.groupMessage = groupMessage;
         groupMessage.sendGroupMessage("正在汇总状态图，请等待");
 
@@ -919,14 +1024,6 @@ public class PlayerData {
     }
 
     public void removeTimer() {
-        if (thread != null) thread.interrupt();
-        if (veh_T != null) veh_T.interrupt();
-        if (wp_T != null) wp_T.interrupt();
-        if (imgTread != null) imgTread.interrupt();
-        if (kd_T != null) kd_T.interrupt();
-        if (kpm_T != null) kpm_T.interrupt();
-        if (st_T != null) st_T.interrupt();
-        ThreadInterrupt(cl_T);
         timer.cancel();
         System.out.println("该任务" + (timer.purge() == 0 ? "已经被停止" : "还在运行"));
     }
@@ -973,18 +1070,23 @@ public class PlayerData {
     private void selectMessage(int i) throws IOException {
         switch (i) {
             case GetType.CX:
+                isCxOver = false;
                 ImgMessage(groupMessage);
                 break;
             case GetType.WP:
+                isWpOver = false;
                 WP(groupMessage);//武器图
                 break;
             case GetType.VH:
+                isVehOver = false;
                 VEH(groupMessage);//载具图
                 break;
             case GetType.KD:
+                isKdOver = false;
                 KD(groupMessage);//kd图
                 break;
             case GetType.KILL:
+                isKillOver = false;
                 Kill(groupMessage);//kill图
                 break;
             case GetType.ST:
@@ -994,6 +1096,7 @@ public class PlayerData {
                 RL(groupMessage);//最近活动
                 break;
             case GetType.CL:
+                isClOver= false;
                 CL(groupMessage);
                 break;
         }
@@ -1048,7 +1151,6 @@ public class PlayerData {
 
     private void Get_Graphs() {
         if (isOK_Graphs) return;
-        getThread_Graphs++;
         System.out.println("GET_G");
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .writeTimeout(10, TimeUnit.SECONDS)
@@ -1068,21 +1170,10 @@ public class PlayerData {
                     CapacityPool.removePlayerData(name);
                 }
                 if (getThread_Graphs < 5) {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            thread_Graphs.interrupt();
-                            System.out.println(getThread_Graphs);
-                            thread_Graphs = new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Get_Graphs();
-                                }
-                            });
-                            thread_Graphs.start();
-                        }
-                    });
+                    getThread_Graphs--;
+                    Get_Graphs();
                 }
+
             }
 
             @Override
@@ -1093,20 +1184,8 @@ public class PlayerData {
                         CapacityPool.removePlayerData(name);
                     }
                     if (getThread_Graphs < 5) {
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                thread_Graphs.interrupt();
-                                System.out.println(getThread_Graphs);
-                                thread_Graphs = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Get_Graphs();
-                                    }
-                                });
-                                thread_Graphs.start();
-                            }
-                        });
+                        getThread_Graphs--;
+                        Get_Graphs();
                     }
                 }
                 isOK_Graphs = true;
@@ -1498,10 +1577,7 @@ public class PlayerData {
                 selectMessage(type);
             }
             System.out.println("GET_BaseData is ok");
-            SwingUtilities.invokeLater(() -> {
-                thread_Graphs = new Thread(this::Get_Graphs);
-                thread_Graphs.start();
-            });
+            service.submit(this::Get_Graphs);
         } catch (IOException | InterruptedException e) {
             if (attempts == 0) {
                 if (isTime)groupMessage.sendGroupMessage("链接超时");

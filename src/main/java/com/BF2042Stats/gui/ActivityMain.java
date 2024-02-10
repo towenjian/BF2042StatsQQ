@@ -13,7 +13,7 @@ import java.io.InputStream;
 public class ActivityMain{
     private static final JavaPlugin javaPlugin = BF2042StatsV1.getJP();
     private static final ActivityMain activityMain = new ActivityMain();
-    private Font font;
+    private final Font font;
     private ConfigActivity configActivity;
     private ActivityMain() {
         InputStream fontFile = getClass().getClassLoader().getResourceAsStream("AL.ttf");
