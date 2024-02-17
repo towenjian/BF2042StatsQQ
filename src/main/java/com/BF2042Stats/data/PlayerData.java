@@ -80,7 +80,7 @@ public class PlayerData {
     private GroupMessage groupMessage;
     private int time = 2;
     private int TimeMember = 0;
-    private int getThread_frequency = 0;
+    private int getThread_frequency = 5;
     private int getThread_Graphs = 0;
     private CheatCheat cheatCheat;
 
@@ -124,19 +124,24 @@ public class PlayerData {
     }
 
     private void Get() {
-        service.submit(() -> Get_BaseData(5));
+        service.submit(() -> Get_BaseData(getThread_frequency));
 //        thread = new Thread(() -> Get_BaseData(5));
 //        thread.start();
     }
 
     private void TextMessage() {
-        if (localDateTimeMap.containsKey(String.valueOf(groupMessage.getGroup().getId())))
-        {
-            LocalDateTime ordTime = LocalDateTime.now();
-            Duration duration = Duration.between(localDateTimeMap.get(String.valueOf(groupMessage.getGroup().getId())), ordTime);
-            if (duration.toHours()<1) return;
+        try {
+            if (localDateTimeMap.containsKey(String.valueOf(groupMessage.getGroup().getId())))
+            {
+                LocalDateTime ordTime = LocalDateTime.now();
+                Duration duration = Duration.between(localDateTimeMap.get(String.valueOf(groupMessage.getGroup().getId())), ordTime);
+                if (duration.toHours()<1) return;
+            }
+            localDateTimeMap.put(String.valueOf(groupMessage.getGroup().getId()), LocalDateTime.now());
+        } catch (Exception e) {
+            System.out.println("error");
+            throw new RuntimeException(e);
         }
-        localDateTimeMap.put(String.valueOf(groupMessage.getGroup().getId()), LocalDateTime.now());
         String replyMessage = "json处理异常";
         if (jsonObject!=null) replyMessage = "游戏ID:" + jsonObject.getString("userName") + "\n" +
                 "游戏时长:" + jsonObject.getString("time") + "h" + "\n" +
@@ -197,20 +202,16 @@ public class PlayerData {
         System.out.println("IMG");
         TextMessage();
         groupMessage.sendGroupMessage("正在生成你的基本数据图，等待中。。。");
-        //test
-        //end
-        //wp
-        //
         Thumbnails.of(new BufferedImage(1920, 3240, BufferedImage.TYPE_INT_ARGB))
                 .size(1920, 3240)
                 .watermark(PostionEnum.Base.getPosition(), Thumbnails.of(new URL("https://moe.jitsu.top/img/?sort=mp&size=mw1920")).width(1920).asBufferedImage(), 1f)
                 .watermark((enclosingWidth, enclosingHeight, width, height, insetLeft, insetRight, insetTop, insetBottom) -> new Point(0, 0), Thumbnails.of(getClass().getClassLoader().getResourceAsStream("base2.png")).size(1920, 3240).asBufferedImage(), 1f)
                 .watermark(PostionEnum.TX.getPosition(), Thumbnails.of(new URL(isNull(jsonObject.getString("avatar")))).size(165, 165).asBufferedImage(), 1f)
-                .watermark(PostionEnum.CL.getPosition(), Thumbnails.of(new URL(isNull(classes.getJSONObject(0).getJSONObject("avatarImages").getString("us")))).height(165).asBufferedImage(), 1f)
-//                .watermark(PostionEnum.P1.getPosition(), Thumbnails.of(getClass().getClassLoader().getResourceAsStream(is_guer?"h.png":(isPro?"pro.png":"ss.png"))).size(165,165).asBufferedImage(), 1f)
+                .watermark(PostionEnum.CL.getPosition(), Thumbnails.of(returnBufferedImage(CL, classes.getJSONObject(0).getJSONObject("avatarImages").getString("us"), 165)).height(165).asBufferedImage(), 1f)
                 .watermark(PostionEnum.P2.getPosition(), getWpDataPie(800, 800), 1f)
                 .watermark(PostionEnum.P3.getPosition(), getVehDataPie(800, 800), 1f)
                 .toFile(new File(javaPlugin.getDataFolder(), name + ".png"));
+//        System.out.println("c1");
         File img_file = new File(javaPlugin.getDataFolder(), name + ".png");
         BufferedImage image = ImageIO.read(img_file);
         Graphics2D g2d = image.createGraphics();
@@ -225,20 +226,29 @@ public class PlayerData {
         g2d.setFont(mc_font.deriveFont(30f));
         g2d.drawString("\u673a\u5668\u4eba\u9274\u5b9a\u7ed3\u679c(\u4ec5\u4f9b\u53c2\u8003):", 1250, 53);
         g2d.setColor(cheatCheat.getColor());
+//        System.out.println("c2-3");
         g2d.drawString(cheatCheat.getResult(), 1375, 93);
+//        System.out.println("c2-4");
         g2d.drawString("\u539f\u56e0:" + cheatCheat.getReason(), 1200, 145);
+//        System.out.println("c2-5");
         g2d.setColor(Color.BLACK);
+//        System.out.println("c2-6");
         g2d.drawString("\u8054ban\u67e5\u8be2\u7ed3\u679c:", 1200, 185);
+//        System.out.println("c2-7");
         g2d.setColor(cheatCheat.getBFBanColor());
+//        System.out.println("c2-8");
         g2d.drawString(cheatCheat.getBFBanResult(), 1440, 185);
+//        System.out.println("c2-9");
         g2d.setColor(Color.BLACK);
         g2d.setFont(mc_font.deriveFont(40f));
+//        System.out.println("c3");
         //end
         //专家
         g2d.drawString("KD:" + classes.getJSONObject(0).getString("killDeath"), 810, 60);
         g2d.drawString("KPM:" + classes.getJSONObject(0).getString("kpm"), 810, 100);
         g2d.drawString("\u51fb\u6740\u6570:" + classes.getJSONObject(0).getString("kills"), 810, 140);
         g2d.drawString("\u6b7b\u4ea1\u6570:" + classes.getJSONObject(0).getString("deaths"), 810, 180);
+//        System.out.println("c4");
         //end
         //中间状态栏
         g2d.setFont(mc_font.deriveFont(30f));
@@ -250,34 +260,16 @@ public class PlayerData {
                 temp++;
             }
         }
+//        System.out.println("c5");
         //end
         //武器和载具图
         g2d.setColor(Color.WHITE);
         g2d.setFont(mc_font.deriveFont(20f));
-        CountDownLatch count = new CountDownLatch(18);
         for (int i = 0; i < 18; i++) {
-            final int f = i;
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Graphics2D graphics2D = image.createGraphics();
-                    graphics2D.setFont(mc_font);
-                    try {
-                        writeVhImg(graphics2D, 950, 1200 + f * 110, veh.getJSONObject(f));
-                        writeWpImg(graphics2D, 35, 1200 + f * 110, weapons.getJSONObject(f));
-                        graphics2D.dispose();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    count.countDown();
-                }
-            }).start();
+            writeVhImg(g2d, 950, 1200 + i * 110, veh.getJSONObject(i));
+            writeWpImg(g2d, 35, 1200 + i * 110, weapons.getJSONObject(i));
         }
-        try {
-            count.await();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+//        System.out.println("c6");
         g2d.dispose();
         ImageIO.write(image, "png", img_file);
         isCxOver = true;
@@ -285,14 +277,7 @@ public class PlayerData {
         ExternalResource resource = ExternalResource.create(img_file);
         Image image1 = groupMessage.getGroup().uploadImage(resource);
         resource.close();
-//        groupMessage.getGroup().sendMessage(new MessageChainBuilder()
-//                .append(groupMessage.getMessages()!=null?new QuoteReply(groupMessage.getMessages()):groupMessage.getQuoteReply())
-//                .append(image1)
-//                .build());
         groupMessage.sendImgMessage(image1);
-        img_file.delete();
-        File file1 = new File(javaPlugin.getDataFolder(), name + ".png");
-        file1.delete();
         img_file.delete();
     }
 
@@ -704,7 +689,7 @@ public class PlayerData {
                     }
                 }, Thumbnails.of(getClass().getClassLoader().getResourceAsStream("base.png")).size(1920, 1080).asBufferedImage(), 1f)
                 .watermark(PostionEnum.TX.getPosition(), Thumbnails.of(new URL(isNull(jsonObject.getString("avatar")))).size(165, 165).asBufferedImage(), 1f)
-                .watermark(PostionEnum.CL.getPosition(), Thumbnails.of(new URL(isNull(classes.getJSONObject(0).getJSONObject("avatarImages").getString("us")))).height(165).asBufferedImage(), 1f)
+                .watermark(PostionEnum.CL.getPosition(), Thumbnails.of(returnBufferedImage(CL, classes.getJSONObject(0).getJSONObject("avatarImages").getString("us"), 165)).height(165).asBufferedImage(), 1f)
 //                .watermark(PostionEnum.P1.getPosition(), Thumbnails.of(getClass().getClassLoader().getResourceAsStream(is_guer?"h.png":(isPro?"pro.png":"ss.png"))).size(165,165).asBufferedImage(), 1f)
                 .toFile(new File(javaPlugin.getDataFolder(), name + "-cl.png"));
         File file = new File(javaPlugin.getDataFolder(), name + "-cl.png");
@@ -821,7 +806,7 @@ public class PlayerData {
                 .size(1920, 1080)
                 .watermark(PostionEnum.Base.getPosition(), Thumbnails.of(getClass().getClassLoader().getResourceAsStream("chart.png")).size(1920, 1080).asBufferedImage(), 1f)
                 .watermark(PostionEnum.TX.getPosition(), Thumbnails.of(new URL(isNull(jsonObject.getString("avatar")))).size(165, 165).asBufferedImage(), 1f)
-                .watermark(PostionEnum.CL.getPosition(), Thumbnails.of(new URL(isNull(classes.getJSONObject(0).getJSONObject("avatarImages").getString("us")))).height(165).asBufferedImage(), 1f)
+                .watermark(PostionEnum.CL.getPosition(), Thumbnails.of(returnBufferedImage(CL, classes.getJSONObject(0).getJSONObject("avatarImages").getString("us"), 165)).height(165).asBufferedImage(), 1f)
                 .watermark(new Position() {
                     @Override
                     public Point calculate(int enclosingWidth, int enclosingHeight, int width, int height, int insetLeft, int insetRight, int insetTop, int insetBottom) {
@@ -926,7 +911,7 @@ public class PlayerData {
                 .size(1920, 1080)
                 .watermark(PostionEnum.Base.getPosition(), Thumbnails.of(getClass().getClassLoader().getResourceAsStream("chart.png")).size(1920, 1080).asBufferedImage(), 1f)
                 .watermark(PostionEnum.TX.getPosition(), Thumbnails.of(new URL(isNull(jsonObject.getString("avatar")))).size(165, 165).asBufferedImage(), 1f)
-                .watermark(PostionEnum.CL.getPosition(), Thumbnails.of(new URL(isNull(classes.getJSONObject(0).getJSONObject("avatarImages").getString("us")))).height(165).asBufferedImage(), 1f)
+                .watermark(PostionEnum.CL.getPosition(), Thumbnails.of(returnBufferedImage(CL, classes.getJSONObject(0).getJSONObject("avatarImages").getString("us"), 165)).height(165).asBufferedImage(), 1f)
                 .watermark((enclosingWidth, enclosingHeight, width, height, insetLeft, insetRight, insetTop, insetBottom) -> new Point(20, 400), getChart(KillsJson, 1874, 626), 1f)
                 .toFile(new File(javaPlugin.getDataFolder(), name + "kill.png"));
         File file = new File(javaPlugin.getDataFolder(), name + "kill.png");
@@ -1059,6 +1044,7 @@ public class PlayerData {
 //        if (file.exists()) return Thumbnails.of(file).height(h).asBufferedImage();
         if (ImgData.getInstance().getImg(type,s.split("/")[s.split("/").length - 1])!=null) return Thumbnails.of(ImgData.getInstance().getImg(type,s.split("/")[s.split("/").length - 1])).height(h).asBufferedImage();
         else ImgData.getInstance().setImg(type,s.split("/")[s.split("/").length - 1], Thumbnails.of(new URL(s)).height(h).asBufferedImage());
+        System.out.println("t1");
         Thumbnails.of(new URL(s)).height(100).toFile(new File(javaPlugin.getDataFolder() + "/" + type, s.split("/")[s.split("/").length - 1]));
         return Thumbnails.of(ImgData.getInstance().getImg(type,s.split("/")[s.split("/").length - 1])).height(h).asBufferedImage();
     }
@@ -1067,38 +1053,43 @@ public class PlayerData {
         return name;
     }
 
-    private void selectMessage(int i) throws IOException {
-        switch (i) {
-            case GetType.CX:
-                isCxOver = false;
-                ImgMessage(groupMessage);
-                break;
-            case GetType.WP:
-                isWpOver = false;
-                WP(groupMessage);//武器图
-                break;
-            case GetType.VH:
-                isVehOver = false;
-                VEH(groupMessage);//载具图
-                break;
-            case GetType.KD:
-                isKdOver = false;
-                KD(groupMessage);//kd图
-                break;
-            case GetType.KILL:
-                isKillOver = false;
-                Kill(groupMessage);//kill图
-                break;
-            case GetType.ST:
-                ST(groupMessage);//所有集合图
-                break;
-            case GetType.RL:
-                RL(groupMessage);//最近活动
-                break;
-            case GetType.CL:
-                isClOver= false;
-                CL(groupMessage);
-                break;
+    private void selectMessage(int i) {
+        try {
+            switch (i) {
+                case GetType.CX:
+                    isCxOver = false;
+                    ImgMessage(groupMessage);
+                    break;
+                case GetType.WP:
+                    isWpOver = false;
+                    WP(groupMessage);//武器图
+                    break;
+                case GetType.VH:
+                    isVehOver = false;
+                    VEH(groupMessage);//载具图
+                    break;
+                case GetType.KD:
+                    isKdOver = false;
+                    KD(groupMessage);//kd图
+                    break;
+                case GetType.KILL:
+                    isKillOver = false;
+                    Kill(groupMessage);//kill图
+                    break;
+                case GetType.ST:
+                    ST(groupMessage);//所有集合图
+                    break;
+                case GetType.RL:
+                    RL(groupMessage);//最近活动
+                    break;
+                case GetType.CL:
+                    isClOver= false;
+                    CL(groupMessage);
+                    break;
+            }
+        } catch (IOException e) {
+            System.out.println("发送失败");
+            throw new RuntimeException(e);
         }
     }
 
@@ -1542,7 +1533,9 @@ public class PlayerData {
                 return;
             }
             jsonObject = JSONObject.parseObject(response.body().string());
+            response.body().close();
             response.close();
+            call.cancel();
             jsonObject.put("human", jsonObject.getJSONObject("dividedKills").get("human"));
             jsonObject.put("melee", jsonObject.getJSONObject("dividedKills").get("melee"));
             if (jsonObject.getDouble("secondsPlayed")==0){
@@ -1577,12 +1570,15 @@ public class PlayerData {
                 selectMessage(type);
             }
             System.out.println("GET_BaseData is ok");
-            service.submit(this::Get_Graphs);
+            SwingUtilities.invokeLater(() -> service.submit(this::Get_Graphs));
         } catch (IOException | InterruptedException e) {
             if (attempts == 0) {
                 if (isTime)groupMessage.sendGroupMessage("链接超时");
                 CapacityPool.removePlayerData(name.toLowerCase());
-            } else Get_BaseData(attempts-1);
+            } else {
+                System.out.println("重复触发");
+                Get_BaseData(attempts - 1);
+            }
             throw new RuntimeException(e);
         }
     }

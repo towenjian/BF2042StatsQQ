@@ -3,15 +3,21 @@ package com.BF2042Stats.data.data_factory.T;
 import com.BF2042Stats.data.CapacityPool;
 import com.BF2042Stats.data.ConfigData;
 import com.BF2042Stats.data.GroupMessage;
+import com.BF2042Stats.data.Permissions;
 import com.BF2042Stats.data.data_interface.InterfaceData;
 
 import java.util.Map;
 import java.util.Set;
 
 public class LIST implements InterfaceData {
+    private static final Permissions permission = new Permissions.Builder()
+            .allowBotAdmin()
+            .allowOwner()
+            .allowAdministrator()
+            .build();
     @Override
     public void start(GroupMessage groupMessage) {
-        if (groupMessage.getMember().getPermission().getLevel()<=0){
+        if (!permission.isAllow(groupMessage.getMember())){
             groupMessage.sendGroupMessage("非管理员无法使用该指令");
             return;
         }

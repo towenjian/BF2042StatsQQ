@@ -52,13 +52,15 @@ public class Command implements TimeCallback {
                 return;
             }
             LocalDateTime nowTime = LocalDateTime.now();
-            if (lastMessageTimeMap.containsKey(String.valueOf(groupMessageEvent.getGroup().getId())))if (!nowTime.isAfter(lastMessageTimeMap.get(String.valueOf(groupMessageEvent.getGroup().getId())).plusSeconds(ConfigData.getGroupChatInterval()))&&groupMessageEvent.getSender().getPermission().getLevel()==0){
+            if (lastMessageTimeMap.containsKey(String.valueOf(groupMessageEvent.getGroup().getId())))
+                if (!String.valueOf(groupMessageEvent.getSender().getId()).equals(ConfigData.getUser()))if (!nowTime.isAfter(lastMessageTimeMap.get(String.valueOf(groupMessageEvent.getGroup().getId())).plusSeconds(ConfigData.getGroupChatInterval()))&&groupMessageEvent.getSender().getPermission().getLevel()==0){
 //                groupMessageEvent.getGroup().sendMessage("当前正在聊天，请稍后再发消息，或者私聊查询--剩余时间："+ (ConfigData.getGroupChatInterval()-Duration.between(lastMessageTimeMap.get(String.valueOf(groupMessageEvent.getGroup().getId())),nowTime).getSeconds()));
                 groupMessageEvent.getGroup().sendMessage(new MessageChainBuilder()
                         .append(new QuoteReply(groupMessageEvent.getMessage())).append("当前有人正在聊天，请等待-").append(String.valueOf(ConfigData.getGroupChatInterval() - Duration.between(lastMessageTimeMap.get(String.valueOf(groupMessageEvent.getGroup().getId())), nowTime).getSeconds())).append("秒后再使用查询指令，或者私聊机器人进行查询")
                         .build());
                 return;
             }
+            System.out.println("触发");
             String[] temp = messageChain.contentToString().replace("#", "").split(" ");
             GroupMessage groupMessage = new GroupMessage(groupMessageEvent, this,bot,temp);
             if (list.contains(temp[0].toLowerCase())) FactoryEnum.valueOf(temp[0].toLowerCase()).getInterfaceData().start(groupMessage);
@@ -145,7 +147,6 @@ public class Command implements TimeCallback {
         bot.getEventChannel().subscribeAlways(FriendMessageEvent.class, friendMessageEvent -> {
             if (friendMessageEvent.getFriend().getId()!=Long.parseLong(ConfigData.getUser())) {
             }
-
         });
         return this;
     }

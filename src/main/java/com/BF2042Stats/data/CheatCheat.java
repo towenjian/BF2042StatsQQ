@@ -35,6 +35,7 @@ public class CheatCheat {
     private boolean isHacker = false,isPro = false,isSuspicious = false,isHacker_BFBan = false;
     private double kills,kills_human,kills_ju=0,kills_wp = 0,btl_all;
     private int suspiciousMember = 0,hackerMember = 0;
+    private String st = null;
 
     public CheatCheat(JSONObject jsonObject,JSONArray wp_array) {
         this.jsonObject = jsonObject;
@@ -43,6 +44,8 @@ public class CheatCheat {
         try {
             BFBan();
         } catch (IOException e) {
+            isHacker_BFBan = false;
+            st = "联Ban查找失败-";
             throw new RuntimeException(e);
         }
     }
@@ -137,21 +140,21 @@ public class CheatCheat {
     }
     public String getResult(){
         if (isHacker){
-            return "鉴定为挂钩";
+            return  "鉴定为挂钩";
         }
         if (isSuspicious){
-            return "该玩家数据可疑机器人无法判断";
+            return  "该玩家数据可疑机器人无法判断";
         }
         if (ConfigData.getCusTomResult(jsonObject.getString("userName"))!=null){
             return ConfigData.getCusTomResult(jsonObject.getString("userName"));
         }
         if (isPro){
-            return "普肉哥罢了，轻点捞";
+            return  st==null?"普肉哥罢了，轻点捞":st+"普肉哥罢了，轻点捞";
         }
 //        if (jsonObject.getString("userName").equals("hhhh6448")){
 //            return "而你，我的英雄，你才是真正的Pro";
 //        }
-        else return "我是薯薯不要捞我了！";
+        else return  st==null?"我是薯薯不要捞我了！":st+"我是薯薯不要捞我了！";
     }
     public String getBFBanResult(){
         if (isHacker_BFBan){

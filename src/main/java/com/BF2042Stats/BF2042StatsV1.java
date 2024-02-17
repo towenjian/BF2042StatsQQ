@@ -30,24 +30,19 @@ public final class BF2042StatsV1 extends JavaPlugin {
         ConfigData.getInstance().sout();
         ImgData.getInstance().start();
     }
-
     @Override
     public void onEnable() {
         getLogger().info("Plugin loaded!");
         ListenQqBot.getInstance().BotOnline();
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                ActivityMain activityMain = ActivityMain.getInstance();
-                try {
-                    activityMain.show();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+        SwingUtilities.invokeLater(() -> {
+            ActivityMain activityMain = ActivityMain.getInstance();
+            try {
+                activityMain.show();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         });
     }
-
     @Override
     public void onDisable() {
         super.onDisable();

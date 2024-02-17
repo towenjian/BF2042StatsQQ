@@ -86,6 +86,8 @@ public class ConfigData {
         Yaml customResultsYml = new Yaml();
         InputStreamReader customResultsReader = new InputStreamReader(Files.newInputStream(customResults.toPath()),StandardCharsets.UTF_8);
         customResultsMap = customResultsYml.load(customResultsReader);
+        //设置权限组
+        Permissions.initPermissions(user,groupList);
     }
 
     /**

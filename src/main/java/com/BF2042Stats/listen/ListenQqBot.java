@@ -3,10 +3,12 @@ package com.BF2042Stats.listen;
 import com.BF2042Stats.BF2042StatsV1;
 import com.BF2042Stats.data.ConfigData;
 import net.mamoe.mirai.Bot;
+import net.mamoe.mirai.Mirai;
+import net.mamoe.mirai.console.MiraiConsole;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.event.GlobalEventChannel;
-import net.mamoe.mirai.event.events.BotOnlineEvent;
-import net.mamoe.mirai.event.events.MemberJoinRequestEvent;
+import net.mamoe.mirai.event.events.*;
+import net.mamoe.mirai.utils.MiraiInternalApi;
 import net.mamoe.mirai.utils.MiraiLogger;
 
 import java.util.function.Consumer;
@@ -27,6 +29,7 @@ public class ListenQqBot {
                 Command.setBot(bot);
                 ListenQqBot.bot = bot;
                 logger.info("bot已经上线");
+                bot.getGroups().forEach(group -> group.getBotAsMember().setNameCard("[BF2042机器人]正在运行"));
                 startCommandListen();
             }
         });
@@ -39,5 +42,16 @@ public class ListenQqBot {
                 .joinGroupMessage()
                 .PrivateChat()
                 .start();
+        System.out.println();
+        bot.getEventChannel().subscribeAlways(BotOfflineEvent.Active.class,active -> {
+            active.getBot().getGroups().forEach(group -> {
+                System.out.println("bot已经离线");
+                group.getBotAsMember().setNameCard("离线中...");
+                System.out.println(group.getBotAsMember().getNameCard());
+            });
+        });
     }
+    public static Bot getBot(){
+         return bot;
+     }
 }
