@@ -11,9 +11,7 @@ import java.util.Set;
 
 public class LIST implements InterfaceData {
     private static final Permissions permission = new Permissions.Builder()
-            .allowBotAdmin()
-            .allowOwner()
-            .allowAdministrator()
+            .ExcludeMember()
             .build();
     @Override
     public void start(GroupMessage groupMessage) {

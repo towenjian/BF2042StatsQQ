@@ -48,6 +48,10 @@ public class Permissions {
         if (!allowGroup(member.getGroup().getId())) return false;
         return isAdmin(member.getId())?allowLevel.contains(LEVEL_BOT_ADMIN):allowLevel.contains(member.getPermission().getLevel());
     }
+    public boolean notAllow(Member member){
+        if (!allowGroup(member.getGroup().getId())) return false;
+        return !(isAdmin(member.getId())?allowLevel.contains(LEVEL_BOT_ADMIN):allowLevel.contains(member.getPermission().getLevel()));
+    }
     private void init(){}
     public static class Builder{
         private Permissions permissions = new Permissions();
@@ -64,6 +68,24 @@ public class Permissions {
             return this;
         }
         public Builder allowOwner(){
+            permissions.addAllowLevel(LEVEL_OWNER);
+            return this;
+        }
+        public Builder allowAll(){
+            permissions.addAllowLevel(LEVEL_BOT_ADMIN);
+            permissions.addAllowLevel(LEVEL_ADMINISTRATOR);
+            permissions.addAllowLevel(LEVEL_MEMBER);
+            permissions.addAllowLevel(LEVEL_OWNER);
+            return this;
+        }
+
+        /**
+         * 排除普通群员
+         * @return
+         */
+        public Builder ExcludeMember(){
+            permissions.addAllowLevel(LEVEL_BOT_ADMIN);
+            permissions.addAllowLevel(LEVEL_ADMINISTRATOR);
             permissions.addAllowLevel(LEVEL_OWNER);
             return this;
         }
