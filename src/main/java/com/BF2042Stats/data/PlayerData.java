@@ -62,7 +62,6 @@ public class PlayerData {
     private final long userID;
     private final Timer timer = new Timer();
     private final int type;
-    private final Map<Integer, String> Mapping_table = new LinkedHashMap<>();
     private final boolean isUpData = false;
     private final Map<String,LocalDateTime> localDateTimeMap = new HashMap<>();
     private Font mc_font;
@@ -76,7 +75,6 @@ public class PlayerData {
     private boolean isClOver = true;
     private boolean isKillOver = true;
     private boolean isKdOver = true;
-    private Thread  thread_Graphs;
     private GroupMessage groupMessage;
     private int time = 2;
     private int TimeMember = 0;
@@ -200,7 +198,6 @@ public class PlayerData {
     private void ImgMessage(GroupMessage groupMessage) throws IOException {
         this.groupMessage = groupMessage;
         System.out.println("IMG");
-        TextMessage();
         groupMessage.sendGroupMessage("正在生成你的基本数据图，等待中。。。");
         Thumbnails.of(new BufferedImage(1920, 3240, BufferedImage.TYPE_INT_ARGB))
                 .size(1920, 3240)
@@ -369,7 +366,6 @@ public class PlayerData {
     private void WP(GroupMessage groupMessage) throws IOException {
         System.out.println("WP");
         this.groupMessage = groupMessage;
-        TextMessage();
         groupMessage.sendGroupMessage("正在生成你的武器数据图，等待中");
         if (jsonObject.isEmpty()) {
             groupMessage.sendGroupMessage("数据暂未被拉取成功，请等待cx程序输出文字数据后在使用此命令");
@@ -520,7 +516,6 @@ public class PlayerData {
     private void VEH(GroupMessage groupMessage) throws IOException {
         System.out.println("VEH");
         this.groupMessage = groupMessage;
-        TextMessage();
         groupMessage.sendGroupMessage("正在生成你的载具数据图，等待中");
         if (jsonObject.isEmpty()) {
             groupMessage.sendGroupMessage("数据暂未被拉取成功，请等待cx程序输出文字数据后在使用此命令");
@@ -674,7 +669,6 @@ public class PlayerData {
     private void CL(GroupMessage groupMessage) throws IOException {
         System.out.println("cl");
         this.groupMessage = groupMessage;
-        TextMessage();
         groupMessage.sendGroupMessage("正在生成你的专家数据图，等待中");
         if (jsonObject.isEmpty()) {
             groupMessage.sendGroupMessage("数据暂未被拉取成功，请等待cx程序输出文字数据后在使用此命令");
@@ -980,9 +974,7 @@ public class PlayerData {
     }
 
     public void RL(GroupMessage groupMessage) {
-        this.groupMessage = groupMessage;
-        String reply = "玩家：" + name + " 最近的一次活动时间为" + Mapping_table.get(Mapping_table.size() - 1);
-        groupMessage.sendGroupMessage(reply);
+
     }
 
     private void TimeDelay() {
@@ -1089,6 +1081,7 @@ public class PlayerData {
             }
         } catch (IOException e) {
             System.out.println("发送失败");
+            TextMessage();
             throw new RuntimeException(e);
         }
     }

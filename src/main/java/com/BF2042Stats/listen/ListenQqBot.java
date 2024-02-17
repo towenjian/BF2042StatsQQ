@@ -29,7 +29,9 @@ public class ListenQqBot {
                 Command.setBot(bot);
                 ListenQqBot.bot = bot;
                 logger.info("bot已经上线");
-                bot.getGroups().forEach(group -> group.getBotAsMember().setNameCard("[BF2042机器人]正在运行"));
+                bot.getGroups().forEach(group -> {
+                    if (!group.getBotAsMember().getNameCard().equals("[BF2042机器人]"))group.getBotAsMember().setNameCard("[BF2042机器人]");
+                });
                 startCommandListen();
             }
         });
@@ -42,14 +44,6 @@ public class ListenQqBot {
                 .joinGroupMessage()
                 .PrivateChat()
                 .start();
-        System.out.println();
-        bot.getEventChannel().subscribeAlways(BotOfflineEvent.Active.class,active -> {
-            active.getBot().getGroups().forEach(group -> {
-                System.out.println("bot已经离线");
-                group.getBotAsMember().setNameCard("离线中...");
-                System.out.println(group.getBotAsMember().getNameCard());
-            });
-        });
     }
     public static Bot getBot(){
          return bot;
