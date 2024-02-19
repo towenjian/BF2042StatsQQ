@@ -32,7 +32,7 @@ public class Permissions {
      * @param groupID 消息来源的群聊
      * @return 如果是允许的群聊则返回true
      */
-    public boolean allowGroup(long groupID){
+    public static boolean allowGroup(long groupID){
         return qqGroups.contains(String.valueOf(groupID));
     }
     public String getUserId(){

@@ -1304,6 +1304,7 @@ public class PlayerData {
      *
      * @param thread 需要结束的进程
      */
+    @Deprecated
     private void ThreadInterrupt(Thread thread) {
         if (thread != null) thread.interrupt();
     }

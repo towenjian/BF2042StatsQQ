@@ -1,20 +1,14 @@
 package com.BF2042Stats.listen;
 
 import com.BF2042Stats.callback.TimeCallback;
-import com.BF2042Stats.data.CapacityPool;
-import com.BF2042Stats.data.ConfigData;
-import com.BF2042Stats.data.GroupMessage;
-import com.BF2042Stats.data.PlayerData;
+import com.BF2042Stats.data.*;
 import com.BF2042Stats.data.data_enum.FactoryEnum;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.Member;
 import net.mamoe.mirai.event.events.*;
 import net.mamoe.mirai.message.MessageReceipt;
-import net.mamoe.mirai.message.data.At;
-import net.mamoe.mirai.message.data.MessageChain;
-import net.mamoe.mirai.message.data.MessageChainBuilder;
-import net.mamoe.mirai.message.data.QuoteReply;
+import net.mamoe.mirai.message.data.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -93,7 +87,9 @@ public class Command implements TimeCallback {
      * 处理入群请求
      */
     public Command joinGroupMessage(){
+
         bot.getEventChannel().subscribeAlways(MemberJoinRequestEvent.class, memberJoinRequestEvent -> {
+            if (!Permissions.allowGroup(memberJoinRequestEvent.getGroup().getId())) return;
             String s = memberJoinRequestEvent.getMessage().split("答案：")[1];
             if (isContainsChinese(s)){
                 Objects.requireNonNull(memberJoinRequestEvent.getGroup()).sendMessage(new MessageChainBuilder()
@@ -104,7 +100,9 @@ public class Command implements TimeCallback {
             MessageChain chain = new MessageChainBuilder().append("接收到加群消息，正在验证，申请的ID为:").append(s).append("\n回复此条消息加y既同意加入，n则拒绝\n---仅限群管理员")
                     .build();
             MessageReceipt<Group> receipt = Objects.requireNonNull(memberJoinRequestEvent.getGroup()).sendMessage(chain);
-            requestEventMap.put(receipt.getSource().getIds()[0],memberJoinRequestEvent);
+            MemberJoinChat.addRequest(String.valueOf(receipt.getSource().getIds()[0]),memberJoinRequestEvent);
+            System.out.println(receipt.getSource().getIds()[0]+"入群请求ID");
+//            requestEventMap.put(receipt.getSource().getIds()[0],memberJoinRequestEvent);
             GroupMessage groupMessage = new GroupMessage(receipt,this, bot, new String[]{"cx",s},memberJoinRequestEvent.getFromId());
             CapacityPool.addPlayerData(new PlayerData(
                     groupMessage,
@@ -113,20 +111,33 @@ public class Command implements TimeCallback {
                     1), 0).setTime(1);
         });
         bot.getEventChannel().subscribeAlways(GroupMessageEvent.class,groupMessageEvent -> {
-            System.out.println(groupMessageEvent.getSource().getFromId()+"tttt");
-            System.out.println(groupMessageEvent.getSource().getIds()[0]);
-            if (!requestEventMap.containsKey(groupMessageEvent.getSource().getIds()[0])) return;
+            if (!Permissions.allowGroup(groupMessageEvent.getGroup().getId())) return;
+            if (!groupMessageEvent.getMessage().contains(QuoteReply.Key)) return;
+            boolean fx = false;
+            int id = 0;
+            for (SingleMessage singleMessage : groupMessageEvent.getMessage()) {
+                if (singleMessage instanceof QuoteReply) {
+                    QuoteReply quoteReply = (QuoteReply) singleMessage;
+                    id = quoteReply.getSource().getIds()[0];
+                    if (!MemberJoinChat.hasRequest(String.valueOf(id))) return;
+                    System.out.println(quoteReply);
+                }
+                if (singleMessage instanceof PlainText && singleMessage.contentToString().replace(" ", "").equals("y")) {
+                    fx = true;
+                }
+            }
             if (groupMessageEvent.getPermission().getLevel()==0) {
                 groupMessageEvent.getSender().sendMessage("非管理员，请不要回复此条消息");
                 return;
             }
-            groupMessageEvent.getGroup().sendMessage(new MessageChainBuilder()
-                    .append(String.valueOf(groupMessageEvent.getSource().getIds().length))
-                    .build());
-            List<Integer> list = new ArrayList<>();
-            for (int i : groupMessageEvent.getSource().getIds()){
-                list.add(i);
+            if (fx){
+                MemberJoinChat.getRequest(String.valueOf(id)).accept();
+                groupMessageEvent.getGroup().sendMessage("已同意"+groupMessageEvent.getSender().getNick()+"的加群请求");
+            }else {
+                MemberJoinChat.getRequest(String.valueOf(id)).reject();
+                groupMessageEvent.getGroup().sendMessage("已拒绝"+groupMessageEvent.getSender().getNick()+"的加群请求");
             }
+            MemberJoinChat.removeRequest(String.valueOf(id));
             System.out.println(list);
         });
         return this;
@@ -165,6 +176,7 @@ public class Command implements TimeCallback {
         bot.getEventChannel().subscribeAlways(MemberJoinEvent.class, new Consumer<MemberJoinEvent>() {
             @Override
             public void accept(MemberJoinEvent memberJoinEvent) {
+                MemberJoinChat.removeRequest_id(memberJoinEvent.getMember().getId());
                 memberJoinEvent.getGroup().sendMessage(new MessageChainBuilder()
                         .append(new At(memberJoinEvent.getMember().getId()))
                         .append(ConfigData.getWelcomeMessage())
