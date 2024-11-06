@@ -1,4 +1,4 @@
-[img](https://socialify.git.ci/towenjian/BF2042StatsQQ/image?font=Source%20Code%20Pro&forks=1&language=1&name=1&owner=1&pattern=Circuit%20Board&stargazers=1&theme=Dark)
+![img](https://socialify.git.ci/towenjian/BF2042StatsQQ/image?font=Source%20Code%20Pro&forks=1&language=1&name=1&owner=1&pattern=Circuit%20Board&stargazers=1&theme=Dark)
 # 介绍
 欢迎使用战地2042qq机器人，该插件是在[mirai](https://github.com/mamoe/mirai)的基础是开发的，
 目的是方便查询玩家数据
